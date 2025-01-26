@@ -39,7 +39,27 @@ export default {
     handleAddSubscriptionClick() {
       this.showForm = true;
     },
-    handleSubmit() {},
+    handleSubmit(updatedSubscription) {
+      // pull subscriptions from local storage
+      const stored = localStorage.getItem('subscriptions');
+      let subscriptions = stored ? JSON.parse(stored) : [];
+
+      // update the list to incorporate the changes
+      if (this.editingSubscription) {
+        subscriptions = subscriptions.map((sub) =>
+          sub.id === updatedSubscription.id ? updatedSubscription : sub
+        );
+      } else {
+        subscriptions.push(updatedSubscription);
+      }
+
+      // write back to storage
+      localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
+
+      // reset display state
+      this.showForm = false;
+      this.editingSubscription = null;
+    },
     handleEdit(subscription) {
       this.editingSubscription = subscription;
       this.showForm = true;

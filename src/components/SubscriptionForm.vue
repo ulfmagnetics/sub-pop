@@ -80,6 +80,16 @@
 </template>
 
 <script>
+const defaultValues = {
+  serviceName: '',
+  category: '',
+  cost: '',
+  billingCycle: 'monthly',
+  nextRenewal: '',
+  valueRating: 3,
+  notes: '',
+};
+
 export default {
   name: 'SubscriptionForm',
   props: {
@@ -91,15 +101,7 @@ export default {
   data() {
     // default values for the form
     return {
-      form: {
-        serviceName: '',
-        category: '',
-        cost: '',
-        billingCycle: 'monthly',
-        nextRenewal: '',
-        valueRating: 3,
-        notes: '',
-      },
+      form: defaultValues,
     };
   },
   computed: {
@@ -108,7 +110,29 @@ export default {
     },
   },
   methods: {
-    handleSubmit() {},
+    handleSubmit() {
+      const subscription = {
+        ...this.form,
+        id: this.isEditing ? this.subscription.id : Date.now(),
+      };
+      this.$emit('submit', subscription);
+      this.resetForm();
+    },
+    resetForm() {
+      this.form = defaultValues;
+    },
+  },
+  watch: {
+    subscription: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal) {
+          this.form = { ...newVal };
+        } else {
+          this.resetForm();
+        }
+      },
+    },
   },
 };
 </script>
