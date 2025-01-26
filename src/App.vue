@@ -26,7 +26,7 @@ export default {
   methods: {
     // TODO
   },
-}
+};
 </script>
 
 <style>
