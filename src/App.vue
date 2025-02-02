@@ -27,6 +27,19 @@ export default {
   padding: 1rem;
 }
 
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #4caf50;
+  color: white;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
 .main-nav {
   display: flex;
   gap: 1rem;
@@ -44,7 +57,7 @@ export default {
 }
 
 .nav-link:hover {
-  background-color: #e9ecef;
+  opacity: 0.9;
 }
 
 .router-link-active {
