@@ -2,7 +2,7 @@
   <div id="app">
     <header>
       <h1>Subscription Tracker</h1>
-      <button v-if="!showForm" @click="handleAddSubscriptionClick">
+      <button v-if="!showForm" @click="handleAddSubscriptionClicked">
         Add Subscription
       </button>
     </header>
@@ -11,7 +11,7 @@
       <subscription-form
         v-if="showForm"
         :subscription="editingSubscription"
-        @submit="handleSubmit"
+        @subscription-submitted="handleSubscriptionSubmitted"
         @cancel="handleCancel"
       />
       <subscription-list v-else @edit="handleEdit" />
@@ -36,10 +36,10 @@ export default {
     };
   },
   methods: {
-    handleAddSubscriptionClick() {
+    handleAddSubscriptionClicked() {
       this.showForm = true;
     },
-    handleSubmit(updatedSubscription) {
+    handleSubscriptionSubmitted(updatedSubscription) {
       // pull subscriptions from local storage
       const stored = localStorage.getItem('subscriptions');
       let subscriptions = stored ? JSON.parse(stored) : [];

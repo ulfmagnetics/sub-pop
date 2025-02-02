@@ -115,7 +115,10 @@ export default {
         ...this.form,
         id: this.isEditing ? this.subscription.id : Date.now(),
       };
-      this.$emit('submit', subscription);
+      // NOTE: emitting an event named 'submit' causes an extra call to
+      // handleSubmit() in App.vue with a SubmitEvent as a parameter.
+      // The custom event name prevents this.
+      this.$emit('subscription-submitted', subscription);
       this.resetForm();
     },
     resetForm() {
