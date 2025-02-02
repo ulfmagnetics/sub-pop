@@ -118,7 +118,7 @@ export default {
       // NOTE: emitting an event named 'submit' causes an extra call to
       // handleSubmit() in App.vue with a SubmitEvent as a parameter.
       // The custom event name prevents this.
-      this.$emit('subscription-submitted', subscription);
+      this.$emit('subscription-submit', subscription);
       this.resetForm();
     },
     resetForm() {
