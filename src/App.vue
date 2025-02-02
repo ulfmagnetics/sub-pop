@@ -1,74 +1,21 @@
 <template>
   <div id="app">
-    <header>
-      <h1>Subscription Tracker</h1>
-      <button v-if="!showForm" @click="handleAddSubscriptionClick">
-        Add Subscription
-      </button>
-    </header>
+    <nav class="main-nav">
+      <router-link to="/dashboard" class="nav-link"> Dashboard </router-link>
+      <router-link to="/subscriptions" class="nav-link">
+        Manage Subscriptions
+      </router-link>
+    </nav>
 
     <main>
-      <subscription-form
-        v-if="showForm"
-        :subscription="editingSubscription"
-        @subscription-submit="handleSubscriptionSubmit"
-        @cancel="handleCancel"
-      />
-      <subscription-list v-else @edit="handleEdit" />
+      <router-view></router-view>
     </main>
   </div>
 </template>
 
 <script>
-import SubscriptionList from './components/SubscriptionList.vue';
-import SubscriptionForm from './components/SubscriptionForm.vue';
-
 export default {
   name: 'App',
-  components: {
-    SubscriptionList,
-    SubscriptionForm,
-  },
-  data() {
-    return {
-      showForm: false,
-      editingSubscription: null,
-    };
-  },
-  methods: {
-    handleAddSubscriptionClick() {
-      this.showForm = true;
-    },
-    handleSubscriptionSubmit(updatedSubscription) {
-      // pull subscriptions from local storage
-      const stored = localStorage.getItem('subscriptions');
-      let subscriptions = stored ? JSON.parse(stored) : [];
-
-      // update the list to incorporate the changes
-      if (this.editingSubscription) {
-        subscriptions = subscriptions.map((sub) =>
-          sub.id === updatedSubscription.id ? updatedSubscription : sub
-        );
-      } else {
-        subscriptions.push(updatedSubscription);
-      }
-
-      // write back to storage
-      localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
-
-      // reset display state
-      this.showForm = false;
-      this.editingSubscription = null;
-    },
-    handleEdit(subscription) {
-      this.editingSubscription = subscription;
-      this.showForm = true;
-    },
-    handleCancel() {
-      this.editingSubscription = null;
-      this.showForm = false;
-    },
-  },
 };
 </script>
 
@@ -80,23 +27,34 @@ export default {
   padding: 1rem;
 }
 
-header {
+.main-nav {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 1rem;
   margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
-button {
+.nav-link {
+  text-decoration: none;
+  color: #2c3e50;
   padding: 0.5rem 1rem;
-  border: none;
   border-radius: 4px;
-  cursor: pointer;
-  background: #4caf50;
+}
+
+.nav-link:hover {
+  background-color: #e9ecef;
+}
+
+.router-link-active {
+  background-color: #2c3e50;
   color: white;
 }
 
-button:hover {
-  opacity: 0.9;
+main {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
 }
 </style>
