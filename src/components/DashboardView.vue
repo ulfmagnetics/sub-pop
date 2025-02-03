@@ -6,17 +6,17 @@
         <h3>Total Monthly Cost</h3>
         <div class="metric-value">${{ totalMonthlyCost.toFixed(2) }}</div>
       </div>
-      
+
       <div class="metric-card">
         <h3>Total Annual Cost</h3>
         <div class="metric-value">${{ totalAnnualCost.toFixed(2) }}</div>
       </div>
-      
+
       <div class="metric-card">
         <h3>Active Subscriptions</h3>
         <div class="metric-value">{{ subscriptions.length }}</div>
       </div>
-      
+
       <div class="metric-card">
         <h3>Average Value Rating</h3>
         <div class="metric-value">{{ averageValueRating.toFixed(1) }}/5</div>
@@ -27,7 +27,11 @@
     <div class="dashboard-section">
       <h3>Upcoming Renewals</h3>
       <div class="renewals-list">
-        <div v-for="renewal in upcomingRenewals" :key="renewal.id" class="renewal-item">
+        <div
+          v-for="renewal in upcomingRenewals"
+          :key="renewal.id"
+          class="renewal-item"
+        >
           <div class="renewal-service">{{ renewal.serviceName }}</div>
           <div class="renewal-date">{{ formatDate(renewal.nextRenewal) }}</div>
           <div class="renewal-cost">${{ renewal.cost }}</div>
@@ -39,26 +43,7 @@
     <div class="dashboard-section">
       <h3>Cost Distribution by Category</h3>
       <div class="chart-container">
-        <PieChart width={400} height={300}>
-          <Pie
-            data={costByCategory}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            fill="#8884d8"
-            label
-          >
-            {costByCategory.map((entry, index) => {
-              key = `cell-${index}`;
-              fill = categoryColors[index % categoryColors.length];
-              return <Cell key="{key}" fill="{fill}" /> 
-            })}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
+        <!-- TODO implement a pie chart -->
       </div>
     </div>
 
@@ -66,138 +51,114 @@
     <div class="dashboard-section">
       <h3>Value vs Cost Analysis</h3>
       <div class="chart-container">
-        <ScatterChart width={400} height={300}>
-          <CartesianGrid />
-          <XAxis 
-            type="number" 
-            dataKey="monthlyCost" 
-            name="Monthly Cost" 
-            unit="$" 
-          />
-          <YAxis 
-            type="number" 
-            dataKey="valueRating" 
-            name="Value Rating" 
-            unit="/5" 
-          />
-          <Tooltip cursor={{ strokeDasharray: true }} />
-          <Scatter 
-            name="Subscriptions" 
-            data={valueVsCost} 
-            fill="#8884d8"
-          />
-        </ScatterChart>
+        <!-- TODO implement a scatter plot -->
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {
-  PieChart, Pie, Cell,
-  ScatterChart, Scatter, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend
-} from 'recharts'
-
 export default {
   name: 'DashboardView',
-  components: {
-    PieChart, Pie, Cell,
-    ScatterChart, Scatter, XAxis, YAxis,
-    CartesianGrid, Tooltip, Legend
-  },
+  components: {},
   data() {
     return {
       subscriptions: [],
-      categoryColors: ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe']
-    }
+      categoryColors: ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'],
+    };
   },
   computed: {
     // Calculate total monthly cost
     totalMonthlyCost() {
       return this.subscriptions.reduce((total, sub) => {
-        const cost = parseFloat(sub.cost)
-        return total + (sub.billingCycle === 'annual' ? cost / 12 : cost)
-      }, 0)
+        const cost = parseFloat(sub.cost);
+        return total + (sub.billingCycle === 'annual' ? cost / 12 : cost);
+      }, 0);
     },
-    
+
     // Calculate total annual cost
     totalAnnualCost() {
       return this.subscriptions.reduce((total, sub) => {
-        const cost = parseFloat(sub.cost)
-        return total + (sub.billingCycle === 'annual' ? cost : cost * 12)
-      }, 0)
+        const cost = parseFloat(sub.cost);
+        return total + (sub.billingCycle === 'annual' ? cost : cost * 12);
+      }, 0);
     },
-    
+
     // Calculate average value rating
     averageValueRating() {
-      if (this.subscriptions.length === 0) return 0
-      const total = this.subscriptions.reduce((sum, sub) => sum + sub.valueRating, 0)
-      return total / this.subscriptions.length
+      if (this.subscriptions.length === 0) return 0;
+      const total = this.subscriptions.reduce(
+        (sum, sub) => sum + sub.valueRating,
+        0
+      );
+      return total / this.subscriptions.length;
     },
-    
+
     // Get upcoming renewals (next 30 days)
     upcomingRenewals() {
-      const today = new Date()
-      const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000))
-      
+      const today = new Date();
+      const thirtyDaysFromNow = new Date(
+        today.getTime() + 30 * 24 * 60 * 60 * 1000
+      );
+
       return this.subscriptions
-        .filter(sub => {
-          const renewalDate = new Date(sub.nextRenewal)
-          return renewalDate >= today && renewalDate <= thirtyDaysFromNow
+        .filter((sub) => {
+          const renewalDate = new Date(sub.nextRenewal);
+          return renewalDate >= today && renewalDate <= thirtyDaysFromNow;
         })
         .sort((a, b) => new Date(a.nextRenewal) - new Date(b.nextRenewal))
-        .slice(0, 5) // Show only next 5 renewals
+        .slice(0, 5); // Show only next 5 renewals
     },
-    
+
     // Calculate cost by category for pie chart
     costByCategory() {
       const categoryTotals = this.subscriptions.reduce((acc, sub) => {
-        const cost = sub.billingCycle === 'annual' ? sub.cost / 12 : sub.cost
-        acc[sub.category] = (acc[sub.category] || 0) + cost
-        return acc
-      }, {})
-      
+        const cost = sub.billingCycle === 'annual' ? sub.cost / 12 : sub.cost;
+        acc[sub.category] = (acc[sub.category] || 0) + cost;
+        return acc;
+      }, {});
+
       return Object.entries(categoryTotals).map(([name, value]) => ({
         name,
-        value: parseFloat(value.toFixed(2))
-      }))
+        value: parseFloat(value.toFixed(2)),
+      }));
     },
-    
+
     // Prepare data for value vs cost scatter plot
     valueVsCost() {
-      return this.subscriptions.map(sub => ({
+      return this.subscriptions.map((sub) => ({
         name: sub.serviceName,
         valueRating: sub.valueRating,
-        monthlyCost: sub.billingCycle === 'annual' ? 
-          parseFloat((sub.cost / 12).toFixed(2)) : 
-          parseFloat(sub.cost)
-      }))
-    }
+        monthlyCost:
+          sub.billingCycle === 'annual'
+            ? parseFloat((sub.cost / 12).toFixed(2))
+            : parseFloat(sub.cost),
+      }));
+    },
   },
   methods: {
     formatDate(date) {
-      return new Date(date).toLocaleDateString()
+      return new Date(date).toLocaleDateString();
     },
     loadSubscriptions() {
-      const stored = localStorage.getItem('subscriptions')
-      this.subscriptions = stored ? JSON.parse(stored) : []
-    }
+      const stored = localStorage.getItem('subscriptions');
+      this.subscriptions = stored ? JSON.parse(stored) : [];
+    },
   },
   mounted() {
-    this.loadSubscriptions()
+    this.loadSubscriptions();
     // Add event listener for subscription updates
     window.addEventListener('storage', (e) => {
       if (e.key === 'subscriptions') {
-        this.loadSubscriptions()
+        this.loadSubscriptions();
       }
-    })
+    });
   },
   beforeUnmount() {
     // Clean up storage event listener
-    window.removeEventListener('storage', this.loadSubscriptions)
-  }
-}
+    window.removeEventListener('storage', this.loadSubscriptions);
+  },
+};
 </script>
 
 <style scoped>
@@ -216,7 +177,7 @@ export default {
   background: white;
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .metric-card h3 {
@@ -236,7 +197,7 @@ export default {
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-section h3 {
