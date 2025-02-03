@@ -12,6 +12,30 @@ export class Subscription {
     // TODO: add a status field (active, canceled,  expired)
   ) {}
 
+  static buildFromFormData(formData: {
+    id: number;
+    serviceName: string;
+    category: string;
+    cost: string | number;
+    billingCycle: 'monthly' | 'annual';
+    nextRenewal: string | Date;
+    valueRating: string | number;
+    notes?: string;
+  }): Subscription {
+    return new Subscription(
+      formData.id,
+      formData.serviceName,
+      formData.category,
+      Number(formData.cost),
+      formData.billingCycle,
+      formData.nextRenewal instanceof Date
+        ? formData.nextRenewal
+        : new Date(formData.nextRenewal),
+      Number(formData.valueRating),
+      formData.notes || ''
+    );
+  }
+
   isValid(): boolean {
     // TODO: validate that category is a known value
     // TODO: validate that the next renewal date is in the future if the status is active

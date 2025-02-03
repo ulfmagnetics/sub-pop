@@ -14,7 +14,7 @@
           <p>Value Rating: {{ sub.valueRating }}/5</p>
         </div>
         <div class="card-actions">
-          <button @click="editSubscription(sub)">Edit</button>
+          <button @click="editSubscription(sub.id)">Edit</button>
           <button @click="deleteSubscription(sub.id)" class="delete-btn">
             Delete
           </button>
@@ -25,37 +25,30 @@
 </template>
 
 <script>
+import { useSubscriptionStore } from '@/stores/SubscriptionStore';
+
 export default {
   name: 'SubscriptionList',
-  data() {
-    return {
-      subscriptions: [],
-    };
+  computed: {
+    subscriptionStore() {
+      return useSubscriptionStore();
+    },
+    subscriptions() {
+      return this.subscriptionStore.subscriptions;
+    },
   },
   methods: {
-    loadSubscriptions() {
-      const stored = localStorage.getItem('subscriptions');
-      // TODO: catch JSON parsing errors here
-      this.subscriptions = stored ? JSON.parse(stored) : [];
-    },
-    editSubscription(subscription) {
-      this.$emit('edit', subscription);
+    editSubscription(id) {
+      this.$emit('edit', id);
     },
     deleteSubscription(id) {
       if (confirm('Are you sure you want to delete this subscription?')) {
-        this.subscriptions = this.subscriptions.filter((sub) => sub.id !== id);
-        localStorage.setItem(
-          'subscriptions',
-          JSON.stringify(this.subscriptions)
-        );
+        this.subscriptionStore.removeSubscription(id);
       }
     },
     formatDate(date) {
       return new Date(date).toLocaleDateString();
     },
-  },
-  mounted() {
-    this.loadSubscriptions();
   },
 };
 </script>

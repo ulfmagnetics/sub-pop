@@ -4,6 +4,7 @@ import { Subscription } from '@/models/Subscription';
 export const useSubscriptionStore = defineStore('subscriptions', {
   state: () => {
     const stored = localStorage.getItem('subscriptions');
+    // TODO: catch JSON parsing errors here
     const subs = stored ? JSON.parse(stored) : [];
     return {
       subscriptions: subs as Subscription[],
@@ -19,7 +20,7 @@ export const useSubscriptionStore = defineStore('subscriptions', {
 
     updateSubscription(updated: Subscription) {
       if (!updated.isValid()) throw new Error('Invalid subscription');
-      var existing = this.subscriptions.find((s) => s.id === updated.id);
+      const existing = this.subscriptions.find((s) => s.id === updated.id);
       if (!existing) {
         throw new Error(`no subscription found with id ${updated.id}`);
       }

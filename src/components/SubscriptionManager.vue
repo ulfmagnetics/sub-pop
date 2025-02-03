@@ -20,6 +20,8 @@
 <script>
 import SubscriptionList from './SubscriptionList.vue';
 import SubscriptionForm from './SubscriptionForm.vue';
+import { Subscription } from '@/models/Subscription';
+import { useSubscriptionStore } from '@/stores/SubscriptionStore';
 
 export default {
   name: 'SubscriptionManager',
@@ -30,40 +32,36 @@ export default {
   data() {
     return {
       showForm: false,
-      editingSubscription: null,
+      editingId: null,
     };
   },
   methods: {
     handleAddSubscriptionClick() {
       this.showForm = true;
     },
-    handleSubscriptionSubmit(updatedSubscription) {
-      // pull subscriptions from local storage
-      const stored = localStorage.getItem('subscriptions');
-      let subscriptions = stored ? JSON.parse(stored) : [];
-
-      // update the list to incorporate the changes
-      if (this.editingSubscription) {
-        subscriptions = subscriptions.map((sub) =>
-          sub.id === updatedSubscription.id ? updatedSubscription : sub
-        );
-      } else {
-        subscriptions.push(updatedSubscription);
+    handleSubscriptionSubmit(formData) {
+      if (this.editingId) {
+        try {
+          const subscription = Subscription.buildFromFormData(formData);
+          const store = useSubscriptionStore();
+          store.addSubscription(subscription);
+          // TODO: reset the form to default values
+        } catch (error) {
+          // TODO: render validation errors in the UI
+          console.error(error);
+        }
       }
-
-      // write back to storage
-      localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
 
       // reset display state
       this.showForm = false;
-      this.editingSubscription = null;
+      this.editingId = null;
     },
-    handleEdit(subscription) {
-      this.editingSubscription = subscription;
+    handleEdit(id) {
+      this.editingId = id;
       this.showForm = true;
     },
     handleCancel() {
-      this.editingSubscription = null;
+      this.editingId = null;
       this.showForm = false;
     },
   },
