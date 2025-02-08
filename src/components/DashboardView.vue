@@ -53,7 +53,7 @@
     <div class="dashboard-section">
       <h3>Value vs Cost Analysis</h3>
       <div class="chart-container">
-        <!-- TODO implement a scatter plot -->
+        <ScatterPlot :data="scatterChartData" :options="scatterChartOptions" />
       </div>
     </div>
   </div>
@@ -61,9 +61,18 @@
 
 <script>
 import { Pie } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import { Scatter } from 'vue-chartjs';
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  LinearScale,
+  PointElement,
+} from 'chart.js';
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement);
+ChartJS.register(Title, Tooltip, Legend, ArcElement, LinearScale, PointElement);
 
 const categoryColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'];
 
@@ -71,6 +80,7 @@ export default {
   name: 'DashboardView',
   components: {
     PieChart: Pie,
+    ScatterPlot: Scatter,
   },
   data() {
     return {
@@ -168,15 +178,60 @@ export default {
     },
 
     // Prepare data for value vs cost scatter plot
-    valueVsCost() {
-      return this.subscriptions.map((sub) => ({
-        name: sub.serviceName,
-        valueRating: sub.valueRating,
-        monthlyCost:
+    scatterChartData() {
+      const data = this.subscriptions.map((sub) => ({
+        serviceName: sub.serviceName,
+        x:
           sub.billingCycle === 'annual'
             ? parseFloat((sub.cost / 12).toFixed(2))
             : parseFloat(sub.cost),
+        y: sub.valueRating,
       }));
+      return {
+        datasets: [
+          {
+            label: 'Value vs. Cost',
+            data: data,
+            backgroundColor: '#42A5F5',
+            borderColor: '#1E88E5',
+            borderWidth: 1,
+          },
+        ],
+      };
+    },
+
+    // Options for scatter plot
+    scatterChartOptions() {
+      return {
+        responsive: true,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Monthly Cost ($)',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Value Rating',
+            },
+            min: 0,
+            max: 5,
+          },
+        },
+        plugins: {
+          tooltip: {
+            // display the service name in the tooltip
+            callbacks: {
+              label: (tooltipItem) => {
+                const { x, y, serviceName } = tooltipItem.raw;
+                return `${serviceName}: Cost: $${x.toFixed(2)}, Value: ${y}`;
+              },
+            },
+          },
+        },
+      };
     },
   },
   methods: {
