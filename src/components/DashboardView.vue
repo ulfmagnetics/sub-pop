@@ -27,7 +27,9 @@
     <div class="dashboard-section">
       <h3>Upcoming Renewals</h3>
       <div class="renewals-list">
+        <div v-if="upcomingRenewals.length === 0" class="empty-state">None</div>
         <div
+          v-else
           v-for="renewal in upcomingRenewals"
           :key="renewal.id"
           class="renewal-item"
@@ -43,7 +45,7 @@
     <div class="dashboard-section">
       <h3>Cost Distribution by Category</h3>
       <div class="chart-container">
-        <!-- TODO implement a pie chart -->
+        <PieChart :data="pieChartData" :options="pieChartOptions" />
       </div>
     </div>
 
@@ -58,13 +60,21 @@
 </template>
 
 <script>
+import { Pie } from 'vue-chartjs';
+import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+
+ChartJS.register(Title, Tooltip, Legend, ArcElement);
+
+const categoryColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'];
+
 export default {
   name: 'DashboardView',
-  components: {},
+  components: {
+    PieChart: Pie,
+  },
   data() {
     return {
       subscriptions: [],
-      categoryColors: ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'],
     };
   },
   computed: {
@@ -122,6 +132,39 @@ export default {
         name,
         value: parseFloat(value.toFixed(2)),
       }));
+    },
+
+    // Prepare data for pie chart
+    pieChartData() {
+      return {
+        labels: this.costByCategory.map((cat) => cat.name),
+        datasets: [
+          {
+            data: this.costByCategory.map((cat) => cat.value),
+            backgroundColor: categoryColors,
+          },
+        ],
+      };
+    },
+
+    // Options for pie chart
+    pieChartOptions() {
+      return {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          tooltip: {
+            callbacks: {
+              label: (tooltipItem) => {
+                const value = tooltipItem.raw;
+                return '$' + value.toFixed(2);
+              },
+            },
+          },
+        },
+      };
     },
 
     // Prepare data for value vs cost scatter plot
