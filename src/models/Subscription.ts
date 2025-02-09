@@ -22,6 +22,11 @@ export class Subscription {
     valueRating: string | number;
     notes?: string;
   }): Subscription {
+    console.log(
+      'nextRenewal',
+      formData.nextRenewal,
+      new Date(formData.nextRenewal)
+    );
     return new Subscription(
       formData.id,
       formData.serviceName,

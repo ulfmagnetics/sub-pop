@@ -18,13 +18,19 @@ export const useSubscriptionStore = defineStore('subscriptions', {
       this._persistToStorage();
     },
 
+    getSubscriptionById(id: number) {
+      return this.subscriptions.find((s) => s.id === id);
+    },
+
     updateSubscription(updated: Subscription) {
+      console.log('in updateSubscription');
       if (!updated.isValid()) throw new Error('Invalid subscription');
-      const existing = this.subscriptions.find((s) => s.id === updated.id);
+      const existing = this.getSubscriptionById(updated.id);
+      console.log('updating subscription', existing, updated);
       if (!existing) {
         throw new Error(`no subscription found with id ${updated.id}`);
       }
-      this.subscriptions.map((s) => (s.id === updated.id ? updated : s));
+      Object.assign(existing, updated);
       this._persistToStorage();
     },
 
@@ -34,6 +40,7 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     },
 
     _persistToStorage() {
+      console.log('updating local storage', this.subscriptions);
       localStorage.setItem('subscriptions', JSON.stringify(this.subscriptions));
     },
   },

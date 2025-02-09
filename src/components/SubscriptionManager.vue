@@ -40,16 +40,18 @@ export default {
       this.showForm = true;
     },
     handleSubscriptionSubmit(formData) {
-      if (this.editingId) {
-        try {
-          const subscription = Subscription.buildFromFormData(formData);
-          const store = useSubscriptionStore();
+      try {
+        const subscription = Subscription.buildFromFormData(formData);
+        const store = useSubscriptionStore();
+        if (subscription.id) {
+          store.updateSubscription(subscription);
+        } else {
+          subscription.id = Date.now();
           store.addSubscription(subscription);
-          // TODO: reset the form to default values
-        } catch (error) {
-          // TODO: render validation errors in the UI
-          console.error(error);
         }
+      } catch (error) {
+        // TODO: render validation errors in the UI
+        console.error(error);
       }
 
       // reset display state
@@ -57,7 +59,8 @@ export default {
       this.editingId = null;
     },
     handleEdit(id) {
-      this.editingId = id;
+      const store = useSubscriptionStore();
+      this.editingSubscription = store.getSubscriptionById(id);
       this.showForm = true;
     },
     handleCancel() {

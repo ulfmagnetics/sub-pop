@@ -113,7 +113,7 @@ export default {
     handleSubmit() {
       const subscription = {
         ...this.form,
-        id: this.isEditing ? this.subscription.id : Date.now(),
+        id: this.isEditing ? this.subscription.id : null,
       };
       // NOTE: emitting an event named 'submit' causes an extra call to
       // handleSubmit() in App.vue with a SubmitEvent as a parameter.
@@ -131,6 +131,10 @@ export default {
       handler(newVal) {
         if (newVal) {
           this.form = { ...newVal };
+          // extract the date part of the date/time string
+          this.form.nextRenewal = new Date(newVal.nextRenewal)
+            .toISOString()
+            .split('T')[0];
         } else {
           this.resetForm();
         }

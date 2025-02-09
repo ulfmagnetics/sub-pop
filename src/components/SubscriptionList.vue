@@ -9,7 +9,7 @@
         <h3>{{ sub.serviceName }}</h3>
         <div class="subscription-details">
           <p>Category: {{ sub.category }}</p>
-          <p>Cost: {{ sub.cost }} {{ sub.billingCycle }}</p>
+          <p>Cost: ${{ sub.cost }} {{ sub.billingCycle }}</p>
           <p>Next Renewal: {{ formatDate(sub.nextRenewal) }}</p>
           <p>Value Rating: {{ sub.valueRating }}/5</p>
         </div>
@@ -47,7 +47,7 @@ export default {
       }
     },
     formatDate(date) {
-      return new Date(date).toLocaleDateString();
+      return new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
     },
   },
 };
