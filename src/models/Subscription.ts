@@ -1,3 +1,5 @@
+import { CategoryMap } from '@/config';
+
 // Subscription describes a single subscription, i.e. a recurring payment for a service
 export class Subscription {
   constructor(
@@ -22,11 +24,6 @@ export class Subscription {
     valueRating: string | number;
     notes?: string;
   }): Subscription {
-    console.log(
-      'nextRenewal',
-      formData.nextRenewal,
-      new Date(formData.nextRenewal)
-    );
     return new Subscription(
       formData.id,
       formData.serviceName,
@@ -42,8 +39,12 @@ export class Subscription {
   }
 
   isValid(): boolean {
-    // TODO: validate that category is a known value
+    // validate that category is a known value
+    const categories = Object.keys(CategoryMap);
+    if (!categories.includes(this.category)) return false;
+
     // TODO: validate that the next renewal date is in the future if the status is active
+
     return (
       Number.isInteger(this.id) &&
       this.cost > 0 &&

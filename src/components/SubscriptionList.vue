@@ -8,8 +8,8 @@
       <div v-for="sub in subscriptions" :key="sub.id" class="subscription-card">
         <h3>{{ sub.serviceName }}</h3>
         <div class="subscription-details">
-          <p>Category: {{ sub.category }}</p>
-          <p>Cost: ${{ sub.cost }} {{ sub.billingCycle }}</p>
+          <p>Category: {{ categories[sub.category] }}</p>
+          <p>Cost: ${{ sub.cost.toFixed(2) }} {{ sub.billingCycle }}</p>
           <p>Next Renewal: {{ formatDate(sub.nextRenewal) }}</p>
           <p>Value Rating: {{ sub.valueRating }}/5</p>
         </div>
@@ -25,10 +25,16 @@
 </template>
 
 <script>
+import { CategoryMap } from '@/config';
 import { useSubscriptionStore } from '@/stores/SubscriptionStore';
 
 export default {
   name: 'SubscriptionList',
+  data() {
+    return {
+      categories: CategoryMap,
+    };
+  },
   computed: {
     subscriptionStore() {
       return useSubscriptionStore();

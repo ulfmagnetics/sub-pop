@@ -16,10 +16,13 @@
         <label for="category">Category</label>
         <select id="category" v-model="form.category" required>
           <option value="">Select a category</option>
-          <option value="streaming">Streaming</option>
-          <option value="software">Software</option>
-          <option value="gaming">Gaming</option>
-          <option value="other">Other</option>
+          <option
+            v-for="(label, value) in categories"
+            :key="value"
+            :value="value"
+          >
+            {{ label }}
+          </option>
         </select>
       </div>
 
@@ -80,6 +83,8 @@
 </template>
 
 <script>
+import { CategoryMap } from '@/config';
+
 const defaultValues = {
   serviceName: '',
   category: '',
@@ -101,6 +106,7 @@ export default {
   data() {
     // default values for the form
     return {
+      categories: CategoryMap,
       form: defaultValues,
     };
   },

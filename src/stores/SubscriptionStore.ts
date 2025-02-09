@@ -23,10 +23,8 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     },
 
     updateSubscription(updated: Subscription) {
-      console.log('in updateSubscription');
       if (!updated.isValid()) throw new Error('Invalid subscription');
       const existing = this.getSubscriptionById(updated.id);
-      console.log('updating subscription', existing, updated);
       if (!existing) {
         throw new Error(`no subscription found with id ${updated.id}`);
       }
@@ -40,7 +38,6 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     },
 
     _persistToStorage() {
-      console.log('updating local storage', this.subscriptions);
       localStorage.setItem('subscriptions', JSON.stringify(this.subscriptions));
     },
   },
