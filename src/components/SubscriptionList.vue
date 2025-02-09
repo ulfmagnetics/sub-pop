@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { CategoryMap } from '@/config';
+import { CategoryMap } from '@/constants';
 import { useSubscriptionStore } from '@/stores/SubscriptionStore';
 
 export default {

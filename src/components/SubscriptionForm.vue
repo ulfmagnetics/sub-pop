@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import { CategoryMap } from '@/config';
+import { CategoryMap } from '@/constants';
 
 const defaultValues = {
   serviceName: '',

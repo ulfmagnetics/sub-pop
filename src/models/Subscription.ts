@@ -1,4 +1,4 @@
-import { CategoryMap } from '@/config';
+import { CategoryMap } from '@/constants';
 
 // Subscription describes a single subscription, i.e. a recurring payment for a service
 export class Subscription {
