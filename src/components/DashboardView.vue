@@ -89,6 +89,7 @@ export default {
   },
   computed: {
     // Calculate total monthly cost
+    // TODO: refactor this into SubscriptionStore
     totalMonthlyCost() {
       return this.subscriptions.reduce((total, sub) => {
         const cost = parseFloat(sub.cost);
@@ -97,6 +98,7 @@ export default {
     },
 
     // Calculate total annual cost
+    // TODO: refactor this into SubscriptionStore
     totalAnnualCost() {
       return this.subscriptions.reduce((total, sub) => {
         const cost = parseFloat(sub.cost);
@@ -105,6 +107,7 @@ export default {
     },
 
     // Calculate average value rating
+    // TODO: refactor this into SubscriptionStore
     averageValueRating() {
       if (this.subscriptions.length === 0) return 0;
       const total = this.subscriptions.reduce(
