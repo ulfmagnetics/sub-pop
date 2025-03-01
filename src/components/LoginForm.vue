@@ -20,6 +20,7 @@
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { signIn } from '@/services/cognito-service';
+import { displayToast } from '@/util/notifications';
 
 export default defineComponent({
   name: 'LogIn',
@@ -38,13 +39,13 @@ export default defineComponent({
       try {
         const result = await signIn(this.username, this.password);
         if (result.challenge === 'NEW_PASSWORD_REQUIRED') {
-          // TODO: display a toast to the user with info
-          console.log('New password required:', result);
+          displayToast('New password required');
           this.$emit('new-password-required', result.cognitoUser);
         } else {
-          console.log('Login successful:', result);
+          displayToast('Login successful');
         }
       } catch (error) {
+        displayToast('Sorry, there was an error while logging in.');
         console.error('Login error:', error);
       }
     },

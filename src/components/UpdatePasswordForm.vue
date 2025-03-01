@@ -26,6 +26,7 @@ import { defineComponent, PropType } from 'vue';
 import { CognitoUser } from 'amazon-cognito-identity-js';
 import { getCurrentUser } from '@/services/cognito-service';
 import { useRouter } from 'vue-router';
+import { displayToast } from '@/util/notifications';
 
 export default defineComponent({
   name: 'UpdatePassword',
@@ -53,13 +54,12 @@ export default defineComponent({
           this.newPassword,
           {},
           {
-            onSuccess: (result) => {
-              // TODO: display a toast to the user with the success message
-              console.log('Password update successful:', result);
+            onSuccess: () => {
+              displayToast('Password updated successfully');
               this.router.push({ name: 'Dashboard' });
             },
             onFailure: (err) => {
-              // TODO: display a toast to the user with the error
+              displayToast('Sorry, there was an error updating your password.');
               console.error('Password update error:', err);
             },
           }
@@ -84,7 +84,7 @@ export default defineComponent({
           }
         );
       } else {
-        console.error('No user is currently signed in.');
+        displayToast('Sorry, you must be logged in to update your password.');
       }
     },
   },
