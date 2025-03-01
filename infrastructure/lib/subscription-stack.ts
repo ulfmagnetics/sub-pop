@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
@@ -8,6 +9,9 @@ import { Construct } from 'constructs';
 import { PRODUCTION_DOMAIN } from './config';
 
 export class SubscriptionStack extends cdk.Stack {
+  public readonly userPool: cognito.UserPool;
+  public readonly userPoolClient: cognito.UserPoolClient;
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -138,6 +142,39 @@ export class SubscriptionStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'ApiUrl', {
       value: api.url,
       description: 'API Gateway URL',
+    });
+
+    // Create a Cognito User Pool
+    this.userPool = new cognito.UserPool(this, 'UserPool', {
+      userPoolName: 'SubscriptionsUserPool',
+      selfSignUpEnabled: true,
+      signInAliases: { email: true },
+      autoVerify: { email: true },
+      passwordPolicy: {
+        minLength: 12,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: true,
+      },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+    });
+
+    // Create a User Pool Client
+    this.userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
+      userPool: this.userPool,
+      generateSecret: false,
+    });
+
+    // Output the User Pool ID and App Client ID
+    new cdk.CfnOutput(this, 'UserPoolId', {
+      value: this.userPool.userPoolId,
+      description: 'Cognito User Pool ID',
+    });
+
+    new cdk.CfnOutput(this, 'UserPoolClientId', {
+      value: this.userPoolClient.userPoolClientId,
+      description: 'Cognito User Pool Client ID',
     });
   }
 }
