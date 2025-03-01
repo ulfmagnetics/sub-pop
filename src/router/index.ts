@@ -1,8 +1,9 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { getCurrentUser } from '@/services/cognito-service';
-import LoginForm from '@/components/LoginForm.vue';
+import AuthForm from '@/components/AuthForm.vue';
 import DashboardView from '../components/DashboardView.vue';
 import SubscriptionManager from '../components/SubscriptionManager.vue';
+import UpdatePasswordForm from '@/components/UpdatePasswordForm.vue';
 
 const routes = [
   {
@@ -12,7 +13,12 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: LoginForm,
+    component: AuthForm,
+  },
+  {
+    path: '/update-password',
+    name: 'UpdatePassword',
+    component: UpdatePasswordForm,
   },
   {
     path: '/dashboard',

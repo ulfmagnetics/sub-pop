@@ -31,6 +31,9 @@ export const signIn = (username: string, password: string): Promise<any> => {
       onFailure: (err) => {
         reject(err);
       },
+      newPasswordRequired: (userAttributes, requiredAttributes) => {
+        resolve({ challenge: 'NEW_PASSWORD_REQUIRED', cognitoUser });
+      },
     });
   });
 };

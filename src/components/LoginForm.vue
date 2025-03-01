@@ -18,6 +18,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { useRouter } from 'vue-router';
 import { signIn } from '@/services/cognito-service';
 
 export default defineComponent({
@@ -28,11 +29,21 @@ export default defineComponent({
       password: '',
     };
   },
+  setup() {
+    const router = useRouter();
+    return { router };
+  },
   methods: {
     async handleLogIn() {
       try {
         const result = await signIn(this.username, this.password);
-        console.log('Login successful:', result);
+        if (result.challenge === 'NEW_PASSWORD_REQUIRED') {
+          // TODO: display a toast to the user with info
+          console.log('New password required:', result);
+          this.$emit('new-password-required', result.cognitoUser);
+        } else {
+          console.log('Login successful:', result);
+        }
       } catch (error) {
         console.error('Login error:', error);
       }
