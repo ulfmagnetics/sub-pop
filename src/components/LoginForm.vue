@@ -19,7 +19,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import { signIn } from '@/services/cognito-service';
+import { getCurrentUser, signIn } from '@/services/cognito-service';
 import { displayToast } from '@/util/notifications';
 
 export default defineComponent({
@@ -32,6 +32,12 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const currentUser = getCurrentUser();
+
+    if (currentUser) {
+      router.push({ name: 'Dashboard' });
+    }
+
     return { router };
   },
   methods: {
@@ -42,7 +48,7 @@ export default defineComponent({
           displayToast('New password required');
           this.$emit('new-password-required', result.cognitoUser);
         } else {
-          displayToast('Login successful');
+          window.location.reload();
         }
       } catch (error) {
         displayToast('Sorry, there was an error while logging in.');

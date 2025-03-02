@@ -5,6 +5,13 @@
       <router-link to="/subscriptions" class="nav-link">
         Manage Subscriptions
       </router-link>
+      <button
+        v-if="currentUser"
+        class="secondary logout-button"
+        @click="logOut"
+      >
+        Log Out
+      </button>
     </nav>
 
     <main>
@@ -15,9 +22,19 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { getCurrentUser } from './services/cognito-service';
+import { signOut } from './services/cognito-service';
 
 export default defineComponent({
   name: 'App',
+  setup() {
+    const currentUser = getCurrentUser();
+    const logOut = () => {
+      signOut();
+      window.location.reload();
+    };
+    return { currentUser, logOut };
+  },
 });
 </script>
 
@@ -38,8 +55,17 @@ button {
   color: white;
 }
 
+button.secondary {
+  background: #d4d0d0;
+  color: #000000;
+}
+
 button:hover {
   opacity: 0.9;
+}
+
+.logout-button {
+  margin-left: auto;
 }
 
 .main-nav {
