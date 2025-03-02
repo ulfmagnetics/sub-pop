@@ -13,6 +13,12 @@ problem. It is very much a work in progress.
 
 It's built with Vue.js. The technical details are below.
 
+## TODO
+
+- Authentication
+  - Add a registration page
+  - Add an account section with support for updating passwords, forgot password, etc.
+
 ## Project setup
 
 ```
