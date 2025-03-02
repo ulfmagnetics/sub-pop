@@ -1,59 +1,72 @@
 <template>
   <div class="dashboard">
-    <div class="metrics-grid">
-      <!-- Summary Cards -->
-      <div class="metric-card">
-        <h3>Total Monthly Cost</h3>
-        <div class="metric-value">${{ totalMonthlyCost.toFixed(2) }}</div>
-      </div>
-
-      <div class="metric-card">
-        <h3>Total Annual Cost</h3>
-        <div class="metric-value">${{ totalAnnualCost.toFixed(2) }}</div>
-      </div>
-
-      <div class="metric-card">
-        <h3>Active Subscriptions</h3>
-        <div class="metric-value">{{ subscriptions.length }}</div>
-      </div>
-
-      <div class="metric-card">
-        <h3>Average Value Rating</h3>
-        <div class="metric-value">{{ averageValueRating.toFixed(1) }}/5</div>
-      </div>
+    <div v-if="loading" class="spinner-container">
+      <div class="spinner"></div>
+      <p>Loading subscriptions...</p>
     </div>
+    <div v-else>
+      <div class="metrics-grid">
+        <!-- Summary Cards -->
+        <div class="metric-card">
+          <h3>Total Monthly Cost</h3>
+          <div class="metric-value">${{ totalMonthlyCost.toFixed(2) }}</div>
+        </div>
 
-    <!-- Upcoming Renewals -->
-    <div class="dashboard-section">
-      <h3>Upcoming Renewals</h3>
-      <div class="renewals-list">
-        <div v-if="upcomingRenewals.length === 0" class="empty-state">None</div>
-        <div
-          v-else
-          v-for="renewal in upcomingRenewals"
-          :key="renewal.id"
-          class="renewal-item"
-        >
-          <div class="renewal-service">{{ renewal.serviceName }}</div>
-          <div class="renewal-date">{{ formatDate(renewal.nextRenewal) }}</div>
-          <div class="renewal-cost">${{ renewal.cost }}</div>
+        <div class="metric-card">
+          <h3>Total Annual Cost</h3>
+          <div class="metric-value">${{ totalAnnualCost.toFixed(2) }}</div>
+        </div>
+
+        <div class="metric-card">
+          <h3>Active Subscriptions</h3>
+          <div class="metric-value">{{ subscriptions.length }}</div>
+        </div>
+
+        <div class="metric-card">
+          <h3>Average Value Rating</h3>
+          <div class="metric-value">{{ averageValueRating.toFixed(1) }}/5</div>
         </div>
       </div>
-    </div>
 
-    <!-- Cost by Category Chart -->
-    <div class="dashboard-section">
-      <h3>Cost Distribution by Category</h3>
-      <div class="chart-container">
-        <PieChart :data="pieChartData" :options="pieChartOptions" />
+      <!-- Upcoming Renewals -->
+      <div class="dashboard-section">
+        <h3>Upcoming Renewals</h3>
+        <div class="renewals-list">
+          <div v-if="upcomingRenewals.length === 0" class="empty-state">
+            None
+          </div>
+          <div
+            v-else
+            v-for="renewal in upcomingRenewals"
+            :key="renewal.id"
+            class="renewal-item"
+          >
+            <div class="renewal-service">{{ renewal.serviceName }}</div>
+            <div class="renewal-date">
+              {{ formatDate(renewal.nextRenewal) }}
+            </div>
+            <div class="renewal-cost">${{ renewal.cost }}</div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Value vs Cost Chart -->
-    <div class="dashboard-section">
-      <h3>Value vs Cost Analysis</h3>
-      <div class="chart-container">
-        <ScatterPlot :data="scatterChartData" :options="scatterChartOptions" />
+      <!-- Cost by Category Chart -->
+      <div class="dashboard-section">
+        <h3>Cost Distribution by Category</h3>
+        <div class="chart-container">
+          <PieChart :data="pieChartData" :options="pieChartOptions" />
+        </div>
+      </div>
+
+      <!-- Value vs Cost Chart -->
+      <div class="dashboard-section">
+        <h3>Value vs Cost Analysis</h3>
+        <div class="chart-container">
+          <ScatterPlot
+            :data="scatterChartData"
+            :options="scatterChartOptions"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -71,6 +84,8 @@ import {
   LinearScale,
   PointElement,
 } from 'chart.js';
+import { useSubscriptionStore } from '@/stores/SubscriptionStore';
+import { displayToast } from '@/util/notifications';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, LinearScale, PointElement);
 
@@ -84,10 +99,16 @@ export default {
   },
   data() {
     return {
-      subscriptions: [],
+      loading: false,
     };
   },
   computed: {
+    subscriptionStore() {
+      return useSubscriptionStore();
+    },
+    subscriptions() {
+      return this.subscriptionStore.subscriptions;
+    },
     // Calculate total monthly cost
     // TODO: refactor this into SubscriptionStore
     totalMonthlyCost() {
@@ -241,19 +262,20 @@ export default {
     formatDate(date) {
       return new Date(date).toLocaleDateString();
     },
-    loadSubscriptions() {
-      const stored = localStorage.getItem('subscriptions');
-      this.subscriptions = stored ? JSON.parse(stored) : [];
+    async fetchSubscriptions() {
+      this.loading = true;
+      try {
+        await this.subscriptionStore.fetchSubscriptions();
+      } catch (error) {
+        console.error('Error fetching subscriptions:', error);
+        displayToast('Failed to fetch subscriptions. Please try again later.');
+      } finally {
+        this.loading = false;
+      }
     },
   },
   mounted() {
-    this.loadSubscriptions();
-    // Add event listener for subscription updates
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'subscriptions') {
-        this.loadSubscriptions();
-      }
-    });
+    this.fetchSubscriptions();
   },
   beforeUnmount() {
     // Clean up storage event listener
