@@ -39,6 +39,7 @@ export default {
   methods: {
     handleAddSubscriptionClick() {
       this.showForm = true;
+      this.editingSubscription = null;
     },
     handleSubscriptionSubmit(formData) {
       try {
