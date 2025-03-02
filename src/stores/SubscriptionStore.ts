@@ -75,12 +75,10 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     async updateSubscription(subscription: Subscription) {
       this.loading = true;
       try {
-        await api.put(
-          `/subscriptions/${subscription.subscriptionId}`,
-          subscription
-        );
+        const { subscriptionId, ...subscriptionData } = subscription;
+        await api.put(`/subscriptions/${subscriptionId}`, subscriptionData);
         const index = this.subscriptions.findIndex(
-          (sub) => sub.subscriptionId === subscription.subscriptionId
+          (sub) => sub.subscriptionId === subscriptionId
         );
         if (index !== -1) {
           this.subscriptions[index] = subscription;
@@ -112,6 +110,37 @@ export const useSubscriptionStore = defineStore('subscriptions', {
       return this.subscriptions.find(
         (s) => s.subscriptionId === subscriptionId
       );
+    },
+
+    // Local Storage Methods
+    // these are retained for reference and should be removed once the API is fully functional
+    addSubscriptionLocalStorage(sub: Subscription) {
+      if (!sub.isValid()) throw new Error('Invalid subscription');
+      this.subscriptions.push(sub);
+      this._persistToStorage();
+    },
+
+    updateSubscriptionLocalStorage(updated: Subscription) {
+      if (!updated.isValid()) throw new Error('Invalid subscription');
+      const existing = this.getSubscriptionById(updated.subscriptionId);
+      if (!existing) {
+        throw new Error(
+          `no subscription found with id ${updated.subscriptionId}`
+        );
+      }
+      Object.assign(existing, updated);
+      this._persistToStorage();
+    },
+
+    removeSubscriptionLocalStorage(subscriptionId: UUID) {
+      this.subscriptions = this.subscriptions.filter(
+        (s) => s.subscriptionId !== subscriptionId
+      );
+      this._persistToStorage();
+    },
+
+    _persistToStorage() {
+      localStorage.setItem('subscriptions', JSON.stringify(this.subscriptions));
     },
   },
 });
