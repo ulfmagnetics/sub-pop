@@ -10,11 +10,7 @@ const getSubscription = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    // TODO: Get userId from the JWT token (assuming Cognito integration)
-    // const userId = event.requestContext.authorizer?.claims.sub;
-
-    // For now, we'll just use a hardcoded userId for testing
-    const userId = 'test-user-id';
+    const userId = event.requestContext.authorizer?.claims.sub;
 
     if (!userId) {
       return {
