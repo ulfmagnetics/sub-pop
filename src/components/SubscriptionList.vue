@@ -1,23 +1,33 @@
 <template>
   <div class="subscription-list">
     <h2>Your Subscriptions</h2>
-    <div v-if="subscriptions.length === 0" class="empty-state">
-      You haven't added any subscriptions yet.
+    <div v-if="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading subscriptions...</p>
     </div>
-    <div v-else class="subscription-grid">
-      <div v-for="sub in subscriptions" :key="sub.id" class="subscription-card">
-        <h3>{{ sub.serviceName }}</h3>
-        <div class="subscription-details">
-          <p>Category: {{ categories[sub.category] }}</p>
-          <p>Cost: ${{ sub.cost.toFixed(2) }} {{ sub.billingCycle }}</p>
-          <p>Next Renewal: {{ formatDate(sub.nextRenewal) }}</p>
-          <p>Value Rating: {{ sub.valueRating }}/5</p>
-        </div>
-        <div class="card-actions">
-          <button @click="editSubscription(sub.id)">Edit</button>
-          <button @click="deleteSubscription(sub.id)" class="delete-btn">
-            Delete
-          </button>
+    <div v-else>
+      <div v-if="subscriptions.length === 0" class="empty-state">
+        You haven't added any subscriptions yet.
+      </div>
+      <div v-else class="subscription-grid">
+        <div
+          v-for="sub in subscriptions"
+          :key="sub.id"
+          class="subscription-card"
+        >
+          <h3>{{ sub.serviceName }}</h3>
+          <div class="subscription-details">
+            <p>Category: {{ categories[sub.category] }}</p>
+            <p>Cost: ${{ sub.cost.toFixed(2) }} {{ sub.billingCycle }}</p>
+            <p>Next Renewal: {{ formatDate(sub.nextRenewal) }}</p>
+            <p>Value Rating: {{ sub.valueRating }}/5</p>
+          </div>
+          <div class="card-actions">
+            <button @click="editSubscription(sub.id)">Edit</button>
+            <button @click="deleteSubscription(sub.id)" class="delete-btn">
+              Delete
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -27,6 +37,7 @@
 <script>
 import { CategoryMap } from '@/constants';
 import { useSubscriptionStore } from '@/stores/SubscriptionStore';
+import { displayToast } from '@/util/notifications';
 
 export default {
   name: 'SubscriptionList',
@@ -42,8 +53,18 @@ export default {
     subscriptions() {
       return this.subscriptionStore.subscriptions;
     },
+    loading() {
+      return this.subscriptionStore.loading;
+    },
   },
   methods: {
+    async fetchSubscriptions() {
+      try {
+        await this.subscriptionStore.fetchSubscriptions();
+      } catch (error) {
+        displayToast('Failed to fetch subscriptions. Please try again later.');
+      }
+    },
     editSubscription(id) {
       this.$emit('edit', id);
     },
@@ -55,6 +76,9 @@ export default {
     formatDate(date) {
       return new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
     },
+  },
+  mounted() {
+    this.fetchSubscriptions();
   },
 };
 </script>
@@ -90,5 +114,27 @@ export default {
   text-align: center;
   padding: 2rem;
   color: #666;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #000;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
