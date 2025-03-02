@@ -1,9 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
+import middy from 'middy';
+import cors from '@middy/http-cors';
+import { ALLOWED_ORIGIN_PRODUCTION } from './constants';
 
 const dynamodb = new DynamoDB.DocumentClient();
 
-export const handler = async (
+const getSubscription = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
@@ -42,3 +45,14 @@ export const handler = async (
     };
   }
 };
+
+// Determine the allowed origin based on the environment
+const allowedOrigin =
+  process.env.NODE_ENV === 'production' ? ALLOWED_ORIGIN_PRODUCTION : '*';
+
+export const handler = middy(getSubscription).use(
+  cors({
+    origin: '*', // Allow all origins for development
+    credentials: true,
+  })
+);

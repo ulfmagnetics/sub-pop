@@ -1,14 +1,17 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
+import middy from 'middy';
+import cors from '@middy/http-cors';
+import { ALLOWED_ORIGIN_PRODUCTION } from './constants';
 
 const dynamodb = new DynamoDB.DocumentClient();
 
-export const handler = async (
+const createSubscription = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    // TODO: Get userId from the JWT token (assuming Cognito integration)
+    // Get userId from the JWT token (assuming Cognito integration)
     // const userId = event.requestContext.authorizer?.claims.sub;
 
     // For now, we'll just use a hardcoded userId for testing
@@ -50,3 +53,14 @@ export const handler = async (
     };
   }
 };
+
+// Determine the allowed origin based on the environment
+const allowedOrigin =
+  process.env.NODE_ENV === 'production' ? ALLOWED_ORIGIN_PRODUCTION : '*';
+
+export const handler = middy(createSubscription).use(
+  cors({
+    origin: '*', // Allow all origins for development
+    credentials: true,
+  })
+);

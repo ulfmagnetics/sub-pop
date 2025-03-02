@@ -21,10 +21,12 @@
   },
   "dependencies": {
     "@aws-cdk/aws-cognito": "^1.203.0",
+    "@middy/http-cors": "^6.1.4",
     "@types/aws-lambda": "^8.10.147",
     "aws-cdk-lib": "2.178.1",
     "aws-sdk": "^2.1692.0",
     "constructs": "^10.0.0",
+    "middy": "^0.36.0",
     "uuid": "^11.0.5"
   }
 }
