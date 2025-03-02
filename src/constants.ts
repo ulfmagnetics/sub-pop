@@ -1,5 +1,3 @@
-import { ToastOptions } from 'vue3-toastify/index';
-
 // Cognito user pool config
 export const cognitoConfig = {
   region: process.env.VUE_APP_COGNITO_REGION || 'us-east-1',
