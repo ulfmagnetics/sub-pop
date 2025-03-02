@@ -22,6 +22,7 @@ import SubscriptionList from './SubscriptionList.vue';
 import SubscriptionForm from './SubscriptionForm.vue';
 import { Subscription } from '@/models/Subscription';
 import { useSubscriptionStore } from '@/stores/SubscriptionStore';
+import { displayToast } from '@/util/notifications';
 
 export default {
   name: 'SubscriptionManager',
@@ -32,7 +33,7 @@ export default {
   data() {
     return {
       showForm: false,
-      editingId: null,
+      editingSubscription: null,
     };
   },
   methods: {
@@ -43,20 +44,21 @@ export default {
       try {
         const subscription = Subscription.buildFromFormData(formData);
         const store = useSubscriptionStore();
-        if (subscription.id) {
+        if (subscription.subscriptionId) {
           store.updateSubscription(subscription);
         } else {
-          subscription.id = Date.now();
           store.addSubscription(subscription);
         }
       } catch (error) {
-        // TODO: render validation errors in the UI
+        displayToast(
+          'Sorry, there was an error while saving the subscription.'
+        );
         console.error(error);
       }
 
       // reset display state
       this.showForm = false;
-      this.editingId = null;
+      this.editingSubscription = null;
     },
     handleEdit(id) {
       const store = useSubscriptionStore();
@@ -64,7 +66,7 @@ export default {
       this.showForm = true;
     },
     handleCancel() {
-      this.editingId = null;
+      this.editingSubscription = null;
       this.showForm = false;
     },
   },

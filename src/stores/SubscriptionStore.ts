@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { Subscription } from '@/models/Subscription';
 import api from '@/util/api';
+import { UUID } from '@/models/types';
 
 interface SubscriptionState {
   subscriptions: Subscription[];
@@ -30,7 +31,7 @@ export const useSubscriptionStore = defineStore('subscriptions', {
         this.subscriptions = response.data.map(
           (sub: any) =>
             new Subscription(
-              sub.id,
+              sub.subscriptionId,
               sub.serviceName,
               sub.category,
               sub.cost,
@@ -48,13 +49,13 @@ export const useSubscriptionStore = defineStore('subscriptions', {
       }
     },
 
-    async addSubscription(subscription: Omit<Subscription, 'id'>) {
+    async addSubscription(subscription: Omit<Subscription, 'subscriptionId'>) {
       this.loading = true;
       try {
         const response = await api.post('/subscriptions', subscription);
         this.subscriptions.push(
           new Subscription(
-            response.data.id,
+            response.data.subscriptionId,
             response.data.serviceName,
             response.data.category,
             response.data.cost,
@@ -74,9 +75,12 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     async updateSubscription(subscription: Subscription) {
       this.loading = true;
       try {
-        await api.put(`/subscriptions/${subscription.id}`, subscription);
+        await api.put(
+          `/subscriptions/${subscription.subscriptionId}`,
+          subscription
+        );
         const index = this.subscriptions.findIndex(
-          (sub) => sub.id === subscription.id
+          (sub) => sub.subscriptionId === subscription.subscriptionId
         );
         if (index !== -1) {
           this.subscriptions[index] = subscription;
@@ -89,11 +93,13 @@ export const useSubscriptionStore = defineStore('subscriptions', {
       }
     },
 
-    async removeSubscription(id: number) {
+    async removeSubscription(subscriptionId: UUID) {
       this.loading = true;
       try {
-        await api.delete(`/subscriptions/${id}`);
-        this.subscriptions = this.subscriptions.filter((sub) => sub.id !== id);
+        await api.delete(`/subscriptions/${subscriptionId}`);
+        this.subscriptions = this.subscriptions.filter(
+          (sub) => sub.subscriptionId !== subscriptionId
+        );
       } catch (error) {
         this.error = 'Failed to remove subscription: ' + error;
         throw error;
@@ -102,35 +108,10 @@ export const useSubscriptionStore = defineStore('subscriptions', {
       }
     },
 
-    // Local Storage Methods
-    // these are retained for reference and should be removed once the API is fully functional
-    addSubscriptionLocalStorage(sub: Subscription) {
-      if (!sub.isValid()) throw new Error('Invalid subscription');
-      this.subscriptions.push(sub);
-      this._persistToStorage();
-    },
-
-    getSubscriptionByIdLocalStorage(id: number) {
-      return this.subscriptions.find((s) => s.id === id);
-    },
-
-    updateSubscriptionLocalStorage(updated: Subscription) {
-      if (!updated.isValid()) throw new Error('Invalid subscription');
-      const existing = this.getSubscriptionByIdLocalStorage(updated.id);
-      if (!existing) {
-        throw new Error(`no subscription found with id ${updated.id}`);
-      }
-      Object.assign(existing, updated);
-      this._persistToStorage();
-    },
-
-    removeSubscriptionLocalStorage(id: number) {
-      this.subscriptions = this.subscriptions.filter((s) => s.id !== id);
-      this._persistToStorage();
-    },
-
-    _persistToStorage() {
-      localStorage.setItem('subscriptions', JSON.stringify(this.subscriptions));
+    getSubscriptionById(subscriptionId: UUID) {
+      return this.subscriptions.find(
+        (s) => s.subscriptionId === subscriptionId
+      );
     },
   },
 });

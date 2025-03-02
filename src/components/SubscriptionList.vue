@@ -12,7 +12,7 @@
       <div v-else class="subscription-grid">
         <div
           v-for="sub in subscriptions"
-          :key="sub.id"
+          :key="sub.subscriptionId"
           class="subscription-card"
         >
           <h3>{{ sub.serviceName }}</h3>
@@ -23,8 +23,11 @@
             <p>Value Rating: {{ sub.valueRating }}/5</p>
           </div>
           <div class="card-actions">
-            <button @click="editSubscription(sub.id)">Edit</button>
-            <button @click="deleteSubscription(sub.id)" class="delete-btn">
+            <button @click="editSubscription(sub.subscriptionId)">Edit</button>
+            <button
+              @click="deleteSubscription(sub.subscriptionId)"
+              class="delete-btn"
+            >
               Delete
             </button>
           </div>
@@ -65,12 +68,12 @@ export default {
         displayToast('Failed to fetch subscriptions. Please try again later.');
       }
     },
-    editSubscription(id) {
-      this.$emit('edit', id);
+    editSubscription(subscriptionId) {
+      this.$emit('edit', subscriptionId);
     },
-    deleteSubscription(id) {
+    deleteSubscription(subscriptionId) {
       if (confirm('Are you sure you want to delete this subscription?')) {
-        this.subscriptionStore.removeSubscription(id);
+        this.subscriptionStore.removeSubscription(subscriptionId);
       }
     },
     formatDate(date) {

@@ -1,9 +1,10 @@
 import { CategoryMap } from '@/constants';
+import { UUID } from './types';
 
 // Subscription describes a single subscription, i.e. a recurring payment for a service
 export class Subscription {
   constructor(
-    public id: number,
+    public subscriptionId: UUID,
     public serviceName: string,
     public category: string, // TODO: extract this to a separate type
     public cost: number,
@@ -15,7 +16,7 @@ export class Subscription {
   ) {}
 
   static buildFromFormData(formData: {
-    id: number;
+    subscriptionId: UUID;
     serviceName: string;
     category: string;
     cost: string | number;
@@ -25,7 +26,7 @@ export class Subscription {
     notes?: string;
   }): Subscription {
     return new Subscription(
-      formData.id,
+      formData.subscriptionId,
       formData.serviceName,
       formData.category,
       Number(formData.cost),
@@ -46,7 +47,7 @@ export class Subscription {
     // TODO: validate that the next renewal date is in the future if the status is active
 
     return (
-      Number.isInteger(this.id) &&
+      typeof this.subscriptionId === 'string' &&
       this.cost > 0 &&
       this.valueRating >= 1 &&
       this.valueRating <= 5

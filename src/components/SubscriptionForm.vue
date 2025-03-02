@@ -2,6 +2,7 @@
   <div class="subscription-form">
     <h2>{{ isEditing ? 'Edit Subscription' : 'Add New Subscription' }}</h2>
     <form @submit.prevent="handleSubmit">
+      <input type="hidden" v-if="isEditing" v-model="form.id" />
       <div class="form-group">
         <label for="serviceName">Service Name</label>
         <input
