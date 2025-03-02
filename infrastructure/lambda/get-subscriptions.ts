@@ -48,7 +48,7 @@ const allowedOrigin =
 
 export const handler = middy(getSubscription).use(
   cors({
-    origin: '*', // Allow all origins for development
+    origin: allowedOrigin,
     credentials: true,
   })
 );

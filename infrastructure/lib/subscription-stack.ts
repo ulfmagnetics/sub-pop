@@ -3,6 +3,7 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 
@@ -116,34 +117,6 @@ export class SubscriptionStack extends cdk.Stack {
       },
     });
 
-    // API Resources and Methods
-    const subscriptions = api.root.addResource('subscriptions');
-
-    subscriptions.addMethod(
-      'GET',
-      new apigateway.LambdaIntegration(getSubscriptionsFunction)
-    );
-    subscriptions.addMethod(
-      'POST',
-      new apigateway.LambdaIntegration(createSubscriptionFunction)
-    );
-
-    const subscription = subscriptions.addResource('{subscriptionId}');
-    subscription.addMethod(
-      'PUT',
-      new apigateway.LambdaIntegration(updateSubscriptionFunction)
-    );
-    subscription.addMethod(
-      'DELETE',
-      new apigateway.LambdaIntegration(deleteSubscriptionFunction)
-    );
-
-    // Output the API URL
-    new cdk.CfnOutput(this, 'ApiUrl', {
-      value: api.url,
-      description: 'API Gateway URL',
-    });
-
     // Create a Cognito User Pool
     this.userPool = new cognito.UserPool(this, 'UserPool', {
       userPoolName: 'SubscriptionsUserPool',
@@ -166,6 +139,101 @@ export class SubscriptionStack extends cdk.Stack {
       generateSecret: false,
     });
 
+    // Create an Identity Pool
+    const identityPool = new cognito.CfnIdentityPool(this, 'IdentityPool', {
+      allowUnauthenticatedIdentities: false,
+      cognitoIdentityProviders: [
+        {
+          clientId: this.userPoolClient.userPoolClientId,
+          providerName: this.userPool.userPoolProviderName,
+        },
+      ],
+    });
+
+    // Create an IAM role for authenticated users
+    const authenticatedRole = new iam.Role(this, 'CognitoAuthenticatedRole', {
+      assumedBy: new iam.FederatedPrincipal(
+        'cognito-identity.amazonaws.com',
+        {
+          StringEquals: {
+            'cognito-identity.amazonaws.com:aud': identityPool.ref,
+          },
+          'ForAnyValue:StringLike': {
+            'cognito-identity.amazonaws.com:amr': 'authenticated',
+          },
+        },
+        'sts:AssumeRoleWithWebIdentity'
+      ),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess'),
+      ],
+    });
+
+    // Attach the authenticated role to the identity pool
+    new cognito.CfnIdentityPoolRoleAttachment(
+      this,
+      'IdentityPoolRoleAttachment',
+      {
+        identityPoolId: identityPool.ref,
+        roles: {
+          authenticated: authenticatedRole.roleArn,
+        },
+      }
+    );
+
+    // Create a Cognito User Pool Authorizer
+    const authorizer = new apigateway.CognitoUserPoolsAuthorizer(
+      this,
+      'Authorizer',
+      {
+        cognitoUserPools: [this.userPool],
+      }
+    );
+
+    // API Resources and Methods
+    const subscriptions = api.root.addResource('subscriptions');
+
+    subscriptions.addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(getSubscriptionsFunction),
+      {
+        authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      }
+    );
+    subscriptions.addMethod(
+      'POST',
+      new apigateway.LambdaIntegration(createSubscriptionFunction),
+      {
+        authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      }
+    );
+
+    const subscription = subscriptions.addResource('{subscriptionId}');
+    subscription.addMethod(
+      'PUT',
+      new apigateway.LambdaIntegration(updateSubscriptionFunction),
+      {
+        authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      }
+    );
+    subscription.addMethod(
+      'DELETE',
+      new apigateway.LambdaIntegration(deleteSubscriptionFunction),
+      {
+        authorizer,
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      }
+    );
+
+    // Output the API URL
+    new cdk.CfnOutput(this, 'ApiUrl', {
+      value: api.url,
+      description: 'API Gateway URL',
+    });
+
     // Output the User Pool ID and App Client ID
     new cdk.CfnOutput(this, 'UserPoolId', {
       value: this.userPool.userPoolId,
@@ -175,6 +243,11 @@ export class SubscriptionStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'UserPoolClientId', {
       value: this.userPoolClient.userPoolClientId,
       description: 'Cognito User Pool Client ID',
+    });
+
+    new cdk.CfnOutput(this, 'IdentityPoolId', {
+      value: identityPool.ref,
+      description: 'Cognito Identity Pool ID',
     });
   }
 }
