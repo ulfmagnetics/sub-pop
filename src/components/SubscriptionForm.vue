@@ -118,14 +118,10 @@ export default {
   },
   methods: {
     handleSubmit() {
-      const subscription = {
-        ...this.form,
-        id: this.isEditing ? this.subscription.id : null,
-      };
       // NOTE: emitting an event named 'submit' causes an extra call to
       // handleSubmit() in App.vue with a SubmitEvent as a parameter.
       // The custom event name prevents this.
-      this.$emit('subscription-submit', subscription);
+      this.$emit('subscription-submit', this.form);
       this.resetForm();
     },
     resetForm() {
