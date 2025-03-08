@@ -12,6 +12,7 @@
       :subscription="editingSubscription"
       @subscription-submit="handleSubscriptionSubmit"
       @cancel="handleCancel"
+      ref="subscriptionForm"
     />
     <subscription-list v-else @edit="handleEdit" />
   </div>
@@ -41,15 +42,17 @@ export default {
       this.showForm = true;
       this.editingSubscription = null;
     },
-    handleSubscriptionSubmit(formData) {
+    async handleSubscriptionSubmit(formData) {
       try {
         const subscription = Subscription.buildFromFormData(formData);
         const store = useSubscriptionStore();
         if (subscription.subscriptionId) {
-          store.updateSubscription(subscription);
+          await store.updateSubscription(subscription);
         } else {
-          store.addSubscription(subscription);
+          await store.addSubscription(subscription);
         }
+        this.$refs.subscriptionForm.resetForm();
+        displayToast('Subscription saved successfully!');
       } catch (error) {
         displayToast(
           'Sorry, there was an error while saving the subscription.'

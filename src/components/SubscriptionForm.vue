@@ -122,10 +122,9 @@ export default {
       // handleSubmit() in App.vue with a SubmitEvent as a parameter.
       // The custom event name prevents this.
       this.$emit('subscription-submit', this.form);
-      this.resetForm();
     },
     resetForm() {
-      this.form = defaultValues;
+      this.form = { ...defaultValues };
     },
   },
   watch: {
