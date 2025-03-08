@@ -19,13 +19,21 @@ const getSubscription = async (
       };
     }
 
+    const sortBy = event.queryStringParameters?.sortBy || 'serviceName';
+    const sortOrder =
+      event.queryStringParameters?.sortOrder === 'desc' ? 'DESC' : 'ASC';
+
     const params = {
       TableName: process.env.TABLE_NAME!,
       KeyConditionExpression: 'userId = :userId',
       ExpressionAttributeValues: {
         ':userId': userId,
       },
+      ScanIndexForward: sortOrder === 'ASC',
+      IndexName: sortBy,
     };
+
+    console.log('Querying DynamoDB with params:', JSON.stringify(params));
 
     const result = await dynamodb.query(params).promise();
 

@@ -27,7 +27,12 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     async fetchSubscriptions() {
       this.loading = true;
       try {
-        const response = await api.get('/subscriptions');
+        const response = await api.get('/subscriptions', {
+          params: {
+            sortBy: 'serviceName',
+            sortOrder: 'asc',
+          },
+        });
         this.subscriptions = response.data.map(
           (sub: any) =>
             new Subscription(

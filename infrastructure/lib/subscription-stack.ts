@@ -33,15 +33,21 @@ export class SubscriptionStack extends cdk.Stack {
 
     // Add GSIs for common query patterns
     subscriptionsTable.addGlobalSecondaryIndex({
-      indexName: 'byCategory',
+      indexName: 'serviceName',
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'category', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'serviceName', type: dynamodb.AttributeType.STRING },
     });
 
     subscriptionsTable.addGlobalSecondaryIndex({
-      indexName: 'byRenewalDate',
+      indexName: 'nextRenewal',
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'nextRenewalDate', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'nextRenewal', type: dynamodb.AttributeType.STRING },
+    });
+
+    subscriptionsTable.addGlobalSecondaryIndex({
+      indexName: 'cost',
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'cost', type: dynamodb.AttributeType.NUMBER },
     });
 
     // Lambda Functions
