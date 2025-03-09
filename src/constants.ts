@@ -11,5 +11,7 @@ export const CategoryMap = Object.freeze({
   software: 'Software',
   gaming: 'Gaming',
   creators: 'Creators (Patreon, Substack, etc.)',
+  puzzles: 'Puzzles/Crosswords',
+  news: 'News and Magazines',
   other: 'Other',
 });
