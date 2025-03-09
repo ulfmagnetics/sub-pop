@@ -13,5 +13,6 @@ export const CategoryMap = Object.freeze({
   creators: 'Creators (Patreon, Substack, etc.)',
   puzzles: 'Puzzles/Crosswords',
   news: 'News and Magazines',
+  food: 'Food and Drink',
   other: 'Other',
 });
