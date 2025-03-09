@@ -254,7 +254,7 @@ export default {
               text: 'Value Rating',
             },
             min: 0,
-            max: 5,
+            max: 6,
           },
         },
         plugins: {
