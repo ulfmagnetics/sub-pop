@@ -19,6 +19,11 @@ jobs:
         run: npm install
 
       - name: Build
+        env:
+          VUE_APP_API_URL: ${{ secrets.VUE_APP_API_URL }}
+          VUE_APP_COGNITO_REGION: ${{ secrets.VUE_APP_COGNITO_REGION }}
+          VUE_APP_COGNITO_USER_POOL_ID: ${{ secrets.VUE_APP_COGNITO_USER_POOL_ID }}
+          VUE_APP_COGNITO_CLIENT_ID: ${{ secrets.VUE_APP_COGNITO_CLIENT_ID }}
         run: npm run build
 
       - name: Deploy
