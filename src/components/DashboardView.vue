@@ -91,7 +91,18 @@ import { displayToast } from '@/util/notifications';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, LinearScale, PointElement);
 
-const categoryColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'];
+const categoryColors = [
+  '#FF6B6B', // Coral Red
+  '#4ECDC4', // Caribbean Green
+  '#FFD166', // Mustard Yellow
+  '#ff0000', // Just Red
+  '#1A936F', // Jungle Green
+  '#3D5A80', // Dark Blue
+  '#F26419', // Pumpkin Orange
+  '#8338EC', // Violet Purple
+  '#06D6A0', // Aquamarine
+  '#EF476F', // Watermelon Pink
+];
 
 export default {
   name: 'DashboardView',
