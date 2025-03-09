@@ -9,12 +9,14 @@
         <!-- Summary Cards -->
         <div class="metric-card">
           <h3>Total Monthly Cost</h3>
-          <div class="metric-value">${{ totalMonthlyCost.toFixed(2) }}</div>
+          <div class="metric-value">
+            ${{ formatCurrency(totalMonthlyCost) }}
+          </div>
         </div>
 
         <div class="metric-card">
           <h3>Total Annual Cost</h3>
-          <div class="metric-value">${{ totalAnnualCost.toFixed(2) }}</div>
+          <div class="metric-value">${{ formatCurrency(totalAnnualCost) }}</div>
         </div>
 
         <div class="metric-card">
@@ -88,6 +90,7 @@ import {
 } from 'chart.js';
 import { useSubscriptionStore } from '@/stores/SubscriptionStore';
 import { displayToast } from '@/util/notifications';
+import { formatCurrency } from '@/util/formatting';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, LinearScale, PointElement);
 
@@ -116,6 +119,9 @@ export default {
     };
   },
   computed: {
+    formatCurrency() {
+      return formatCurrency;
+    },
     subscriptionStore() {
       return useSubscriptionStore();
     },
