@@ -45,7 +45,9 @@
             <div class="renewal-date">
               {{ formatDate(renewal.nextRenewal) }}
             </div>
-            <div class="renewal-cost">${{ renewal.cost }}</div>
+            <div class="renewal-cost">
+              ${{ parseFloat(renewal.cost).toFixed(2) }}
+            </div>
           </div>
         </div>
       </div>
@@ -336,7 +338,7 @@ export default {
 
 .renewal-item {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr 150px 100px;
   gap: 1rem;
   padding: 0.5rem;
   border-bottom: 1px solid #eee;
