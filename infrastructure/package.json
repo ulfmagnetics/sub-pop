@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "@aws-cdk/aws-cognito": "^1.203.0",
+    "@aws-cdk/aws-events": "^1.203.0",
+    "@aws-cdk/aws-events-targets": "^1.203.0",
     "@middy/http-cors": "^6.1.4",
     "@types/aws-lambda": "^8.10.147",
     "aws-cdk-lib": "2.178.1",

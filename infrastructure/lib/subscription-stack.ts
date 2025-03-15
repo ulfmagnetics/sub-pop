@@ -4,6 +4,8 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 
@@ -233,6 +235,29 @@ export class SubscriptionStack extends cdk.Stack {
         authorizationType: apigateway.AuthorizationType.COGNITO,
       }
     );
+
+    // Create a Lambda function to update renewal dates
+    const updateRenewalDatesFunction = new NodejsFunction(
+      this,
+      'UpdateRenewalDatesFunction',
+      {
+        entry: 'lambda/update-next-renewal-date.ts',
+        handler: 'handler',
+        runtime: lambda.Runtime.NODEJS_22_X,
+        environment: {
+          TABLE_NAME: subscriptionsTable.tableName,
+        },
+      }
+    );
+
+    // Grant DynamoDB permissions to the update renewal dates function
+    subscriptionsTable.grantReadWriteData(updateRenewalDatesFunction);
+
+    // Create an EventBridge rule to trigger the Lambda function that updates renewal dates
+    const rule = new events.Rule(this, 'UpdateRenewalDatesRule', {
+      schedule: events.Schedule.rate(cdk.Duration.days(1)),
+    });
+    rule.addTarget(new targets.LambdaFunction(updateRenewalDatesFunction));
 
     // Output the API URL
     new cdk.CfnOutput(this, 'ApiUrl', {
