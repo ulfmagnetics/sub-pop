@@ -43,7 +43,8 @@ export const useSubscriptionStore = defineStore('subscriptions', {
               sub.billingCycle,
               new Date(sub.nextRenewal),
               sub.valueRating,
-              sub.notes || ''
+              sub.notes || '',
+              sub.status || 'active'
             )
         );
       } catch (error) {
@@ -67,7 +68,8 @@ export const useSubscriptionStore = defineStore('subscriptions', {
             response.data.billingCycle,
             new Date(response.data.nextRenewal),
             response.data.valueRating,
-            response.data.notes || ''
+            response.data.notes || '',
+            response.data.status || 'active'
           )
         );
       } catch (error) {

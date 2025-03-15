@@ -1,49 +1,60 @@
 <template>
-  <div class="subscription-list">
-    <h2>Your Subscriptions</h2>
+  <div class="subscription-list active">
+    <h2>Active Subscriptions</h2>
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
       <p>Loading subscriptions...</p>
     </div>
     <div v-else>
-      <div v-if="subscriptions.length === 0" class="empty-state">
-        You haven't added any subscriptions yet.
+      <div v-if="activeSubscriptions.length === 0" class="empty-state">
+        You don't have any active subscriptions.
       </div>
       <div v-else class="subscription-grid">
-        <div
-          v-for="sub in subscriptions"
+        <subscription-details
+          v-for="sub in activeSubscriptions"
           :key="sub.subscriptionId"
-          class="subscription-card"
-        >
-          <h3>{{ sub.serviceName }}</h3>
-          <div class="subscription-details">
-            <p>Category: {{ categories[sub.category] }}</p>
-            <p>Cost: ${{ sub.cost.toFixed(2) }} {{ sub.billingCycle }}</p>
-            <p>Next Renewal: {{ formatDate(sub.nextRenewal) }}</p>
-            <p>Value Rating: {{ sub.valueRating }}/5</p>
-          </div>
-          <div class="card-actions">
-            <button @click="editSubscription(sub.subscriptionId)">Edit</button>
-            <button
-              @click="deleteSubscription(sub.subscriptionId)"
-              class="delete-btn"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
+          :subscription="sub"
+          @edit="editSubscription"
+          @delete="deleteSubscription"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="subscription-list inactive">
+    <h2>Inactive Subscriptions</h2>
+    <div v-if="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading subscriptions...</p>
+    </div>
+    <div v-else>
+      <div v-if="inactiveSubscriptions.length === 0" class="empty-state">
+        You don't have any inactive subscriptions.
+      </div>
+      <div v-else>
+        <subscription-details
+          v-for="sub in inactiveSubscriptions"
+          :key="sub.subscriptionId"
+          :subscription="sub"
+          @edit="editSubscription"
+          @delete="deleteSubscription"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import SubscriptionDetails from './SubscriptionDetails.vue';
 import { CategoryMap } from '@/constants';
 import { useSubscriptionStore } from '@/stores/SubscriptionStore';
 import { displayToast } from '@/util/notifications';
 
 export default {
   name: 'SubscriptionList',
+  components: {
+    SubscriptionDetails,
+  },
   data() {
     return {
       categories: CategoryMap,
@@ -55,6 +66,12 @@ export default {
     },
     subscriptions() {
       return this.subscriptionStore.subscriptions;
+    },
+    activeSubscriptions() {
+      return this.subscriptions.filter((sub) => sub.isActive());
+    },
+    inactiveSubscriptions() {
+      return this.subscriptions.filter((sub) => !sub.isActive());
     },
     loading() {
       return this.subscriptionStore.loading;
@@ -99,6 +116,12 @@ export default {
   border-radius: 8px;
   padding: 1rem;
   background: white;
+}
+
+.subscription-list.inactive .subscription-card {
+  border: #474747 1px solid;
+  background: #dedede;
+  color: #666;
 }
 
 .card-actions {

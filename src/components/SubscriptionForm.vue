@@ -14,6 +14,11 @@
       </div>
 
       <div class="form-group">
+        <label for="active">Active?</label>
+        <input id="active" v-model="form.active" type="checkbox" />
+      </div>
+
+      <div class="form-group">
         <label for="category">Category</label>
         <select id="category" v-model="form.category" required>
           <option value="">Select a category</option>
@@ -52,6 +57,7 @@
           id="nextRenewal"
           v-model="form.nextRenewal"
           type="date"
+          :disabled="!form.active"
           required
         />
       </div>
@@ -133,6 +139,8 @@ export default {
       handler(newVal) {
         if (newVal) {
           this.form = { ...newVal };
+          // set the active state based on the subscription's status property
+          this.form.active = newVal.status === 'active';
           // extract the date part of the date/time string
           this.form.nextRenewal = new Date(newVal.nextRenewal)
             .toISOString()
@@ -155,12 +163,22 @@ export default {
 
 .form-group {
   margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
 }
 
 label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: bold;
+  flex: 1; /* Allow label to take up remaining space */
+}
+
+input[type='checkbox'] {
+  margin-left: 0; /* Remove default margin */
+  width: 1rem;
+  height: 1rem;
 }
 
 input,
@@ -170,6 +188,10 @@ textarea {
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
+}
+
+input:disabled {
+  color: #dedede;
 }
 
 .form-actions {

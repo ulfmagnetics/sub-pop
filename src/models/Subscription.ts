@@ -11,8 +11,8 @@ export class Subscription {
     public billingCycle: 'monthly' | 'annual',
     public nextRenewal: Date,
     public valueRating: number,
-    public notes: string = ''
-    // TODO: add a status field (active, canceled,  expired)
+    public notes: string = '',
+    public status: 'active' | 'inactive' = 'active'
   ) {}
 
   static buildFromFormData(formData: {
@@ -24,6 +24,7 @@ export class Subscription {
     nextRenewal: string | Date;
     valueRating: string | number;
     notes?: string;
+    active?: boolean;
   }): Subscription {
     return new Subscription(
       formData.subscriptionId,
@@ -35,8 +36,13 @@ export class Subscription {
         ? formData.nextRenewal
         : new Date(formData.nextRenewal),
       Number(formData.valueRating),
-      formData.notes || ''
+      formData.notes || '',
+      formData.active ? 'active' : 'inactive'
     );
+  }
+
+  isActive(): boolean {
+    return this.status === 'active';
   }
 
   isValid(): boolean {
@@ -44,7 +50,13 @@ export class Subscription {
     const categories = Object.keys(CategoryMap);
     if (!categories.includes(this.category)) return false;
 
-    // TODO: validate that the next renewal date is in the future if the status is active
+    // validate that the next renewal date is in the future if the status is active
+    if (this.status === 'active' && this.nextRenewal <= new Date()) {
+      console.error(
+        'Next renewal date must be in the future for active subscriptions.'
+      );
+      return false;
+    }
 
     return (
       typeof this.subscriptionId === 'string' &&
