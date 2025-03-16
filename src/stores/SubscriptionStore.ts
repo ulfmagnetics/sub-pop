@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 import { Subscription } from '@/models/Subscription';
 import api from '@/util/api';
 import { UUID } from '@/models/types';
-import { refreshSession } from '@/services/cognito-service';
 import { fetchSubscriptionsFromApi } from '@/services/subscription-service';
+import { ensureSessionValid } from '@/services/session-service';
 
 interface SubscriptionState {
   subscriptions: Subscription[];
@@ -29,7 +29,7 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     async fetchSubscriptions() {
       this.loading = true;
       try {
-        await refreshSession();
+        await ensureSessionValid();
         const subscriptions = await fetchSubscriptionsFromApi();
         this.subscriptions = subscriptions;
       } catch (error) {
@@ -43,6 +43,7 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     async addSubscription(subscription: Omit<Subscription, 'subscriptionId'>) {
       this.loading = true;
       try {
+        await ensureSessionValid();
         const response = await api.post('/subscriptions', subscription);
         this.subscriptions.push(
           new Subscription(
@@ -67,6 +68,7 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     async updateSubscription(subscription: Subscription) {
       this.loading = true;
       try {
+        await ensureSessionValid();
         const { subscriptionId, ...subscriptionData } = subscription;
         await api.put(`/subscriptions/${subscriptionId}`, subscriptionData);
         const index = this.subscriptions.findIndex(
@@ -86,6 +88,7 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     async removeSubscription(subscriptionId: UUID) {
       this.loading = true;
       try {
+        await ensureSessionValid();
         await api.delete(`/subscriptions/${subscriptionId}`);
         this.subscriptions = this.subscriptions.filter(
           (sub) => sub.subscriptionId !== subscriptionId
