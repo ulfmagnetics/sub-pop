@@ -2,6 +2,7 @@ import {
   CognitoUserPool,
   CognitoUser,
   AuthenticationDetails,
+  CognitoUserSession,
 } from 'amazon-cognito-identity-js';
 import { cognitoConfig } from '../constants';
 
@@ -47,4 +48,36 @@ export const signOut = (): void => {
   if (user) {
     user.signOut();
   }
+};
+
+export const refreshSession = (): Promise<CognitoUserSession> => {
+  const cognitoUser = getCurrentUser();
+  if (!cognitoUser) {
+    return Promise.reject(new Error('No current user'));
+  }
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.getSession((err: Error, session: null | CognitoUserSession) => {
+      if (err) {
+        return reject(err);
+      }
+      if (session === null) {
+        return reject(new Error('Session is null'));
+      }
+
+      if (session.isValid()) {
+        return resolve(session);
+      }
+
+      cognitoUser.refreshSession(
+        session.getRefreshToken(),
+        (err, newSession) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(newSession);
+        }
+      );
+    });
+  });
 };

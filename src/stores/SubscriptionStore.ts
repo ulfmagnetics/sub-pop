@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 import { Subscription } from '@/models/Subscription';
 import api from '@/util/api';
 import { UUID } from '@/models/types';
+import { refreshSession } from '@/services/cognito-service';
+import { fetchSubscriptionsFromApi } from '@/services/subscription-service';
 
 interface SubscriptionState {
   subscriptions: Subscription[];
@@ -27,26 +29,9 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     async fetchSubscriptions() {
       this.loading = true;
       try {
-        const response = await api.get('/subscriptions', {
-          params: {
-            sortBy: 'serviceName',
-            sortOrder: 'asc',
-          },
-        });
-        this.subscriptions = response.data.map(
-          (sub: any) =>
-            new Subscription(
-              sub.subscriptionId,
-              sub.serviceName,
-              sub.category,
-              sub.cost,
-              sub.billingCycle,
-              new Date(sub.nextRenewal),
-              sub.valueRating,
-              sub.notes || '',
-              sub.status || 'active'
-            )
-        );
+        await refreshSession();
+        const subscriptions = await fetchSubscriptionsFromApi();
+        this.subscriptions = subscriptions;
       } catch (error) {
         this.error = 'Failed to fetch subscriptions: ' + error;
         throw error;
