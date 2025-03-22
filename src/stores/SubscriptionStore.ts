@@ -23,10 +23,34 @@ export const useSubscriptionStore = defineStore('subscriptions', {
   }),
 
   getters: {
-    // TODO: refactor functions from DashboardView.vue into getters
-    // totalMonthlyCost
-    // totalAnnualCost
-    // averageValueRating
+    sortedSubscriptions: (state) => {
+      return (sortKey: keyof Subscription, ascending: boolean = true) => {
+        return [...state.subscriptions].sort((a, b) => {
+          let valueA = a[sortKey];
+          let valueB = b[sortKey];
+
+          // Handle date comparisons
+          if (valueA instanceof Date || valueB instanceof Date) {
+            valueA = new Date(valueA as Date).getTime();
+            valueB = new Date(valueB as Date).getTime();
+          }
+
+          // Handle numeric comparisons
+          if (typeof valueA === 'number' && typeof valueB === 'number') {
+            return ascending ? valueA - valueB : valueB - valueA;
+          }
+
+          // Handle string comparisons
+          if (typeof valueA === 'string' && typeof valueB === 'string') {
+            return ascending
+              ? valueA.localeCompare(valueB)
+              : valueB.localeCompare(valueA);
+          }
+
+          return 0;
+        });
+      };
+    },
   },
 
   actions: {

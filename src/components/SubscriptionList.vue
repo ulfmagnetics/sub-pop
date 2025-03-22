@@ -2,7 +2,17 @@
 
 <template>
   <div class="subscription-list active">
-    <h2>Active Subscriptions</h2>
+    <div class="list-header">
+      <h2>Active Subscriptions</h2>
+      <div class="sort-control">
+        <label for="sortBy">Sort by:</label>
+        <select id="sortBy" v-model="sortBy">
+          <option value="nextRenewal">Next Renewal Date</option>
+          <option value="cost">Cost</option>
+          <option value="serviceName">Name</option>
+        </select>
+      </div>
+    </div>
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
       <p>Loading subscriptions...</p>
@@ -60,6 +70,7 @@ export default {
   data() {
     return {
       categories: CategoryMap,
+      sortBy: 'serviceName', // default sort
     };
   },
   computed: {
@@ -67,7 +78,7 @@ export default {
       return useSubscriptionStore();
     },
     subscriptions() {
-      return this.subscriptionStore.subscriptions;
+      return this.subscriptionStore.sortedSubscriptions(this.sortBy, true);
     },
     activeSubscriptions() {
       return this.subscriptions.filter((sub) => sub.isActive());
@@ -147,6 +158,30 @@ export default {
 .loading-state {
   text-align: center;
   padding: 2rem;
+  color: #666;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-control select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.sort-control label {
+  font-size: 0.9rem;
   color: #666;
 }
 </style>
