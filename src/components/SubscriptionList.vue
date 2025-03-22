@@ -71,16 +71,28 @@ import { CategoryMap } from '@/constants';
 import { useSubscriptionStore } from '@/stores/SubscriptionStore';
 import { displayToast } from '@/util/notifications';
 
+const SORT_SETTINGS_KEY = 'subscription-sort-settings';
+const DEFAULT_SORT_SETTINGS = {
+  sortBy: 'nextRenewal',
+  sortAscending: true,
+};
+
 export default {
   name: 'SubscriptionList',
   components: {
     SubscriptionDetails,
   },
   data() {
+    // Load saved settings or use defaults
+    const savedSettings = localStorage.getItem(SORT_SETTINGS_KEY);
+    const settings = savedSettings
+      ? JSON.parse(savedSettings)
+      : DEFAULT_SORT_SETTINGS;
+
     return {
       categories: CategoryMap,
-      sortBy: 'nextRenewal',
-      sortAscending: true,
+      sortBy: settings.sortBy,
+      sortAscending: settings.sortAscending,
     };
   },
   computed: {
@@ -103,6 +115,15 @@ export default {
       return this.subscriptionStore.loading;
     },
   },
+  watch: {
+    // Watch both sort settings and save changes to localStorage
+    sortBy() {
+      this.saveSortSettings();
+    },
+    sortAscending() {
+      this.saveSortSettings();
+    },
+  },
   methods: {
     async fetchSubscriptions() {
       try {
@@ -121,6 +142,13 @@ export default {
     },
     formatDate(date) {
       return new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
+    },
+    saveSortSettings() {
+      const settings = {
+        sortBy: this.sortBy,
+        sortAscending: this.sortAscending,
+      };
+      localStorage.setItem(SORT_SETTINGS_KEY, JSON.stringify(settings));
     },
   },
   mounted() {
