@@ -164,12 +164,12 @@ export default {
         today.getTime() + 30 * 24 * 60 * 60 * 1000
       );
 
-      return this.subscriptions
+      return this.subscriptionStore
+        .sortedSubscriptions('nextRenewal', true)
         .filter((sub) => {
           const renewalDate = new Date(sub.nextRenewal);
           return renewalDate >= today && renewalDate <= thirtyDaysFromNow;
         })
-        .sort((a, b) => new Date(a.nextRenewal) - new Date(b.nextRenewal))
         .slice(0, 5); // Show only next 5 renewals
     },
 
