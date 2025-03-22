@@ -19,18 +19,49 @@ export const handler = async (
         '#status': 'status',
       },
     };
-    console.log('Querying DynamoDB with params:', JSON.stringify(params));
-    const result = await dynamodb.scan(params).promise();
+
+    let result;
+    try {
+      console.log('Querying DynamoDB with params:', JSON.stringify(params));
+      result = await dynamodb.scan(params).promise();
+      console.log('Successfully queried DynamoDB');
+    } catch (error) {
+      console.error('Failed to query DynamoDB:', error);
+      throw error;
+    }
 
     // Iterate over the results and update the nextRenewal date to be either:
     // - the next month if the billing cycle is monthly
     // - the next year if the billing cycle is annual
     const updatePromises = result.Items?.map(async (item) => {
       const nextRenewalDate = new Date(item.nextRenewal);
+      const originalDay = nextRenewalDate.getDate();
+
       if (item.billingCycle === 'monthly') {
+        // Move to the first of the next month
+        nextRenewalDate.setDate(1);
         nextRenewalDate.setMonth(nextRenewalDate.getMonth() + 1);
+
+        // Try to set the original day, but don't exceed the month's last day
+        const lastDayOfMonth = new Date(
+          nextRenewalDate.getFullYear(),
+          nextRenewalDate.getMonth() + 1,
+          0
+        ).getDate();
+        nextRenewalDate.setDate(Math.min(originalDay, lastDayOfMonth));
       } else if (item.billingCycle === 'annual') {
+        // Same logic for annual renewals
+        const originalMonth = nextRenewalDate.getMonth();
+        nextRenewalDate.setDate(1);
         nextRenewalDate.setFullYear(nextRenewalDate.getFullYear() + 1);
+
+        // Check the last day of the target month
+        const lastDayOfMonth = new Date(
+          nextRenewalDate.getFullYear(),
+          originalMonth + 1,
+          0
+        ).getDate();
+        nextRenewalDate.setDate(Math.min(originalDay, lastDayOfMonth));
       }
 
       const updateParams = {
@@ -47,15 +78,28 @@ export const handler = async (
           '#nextRenewal': 'nextRenewal',
         },
       };
-      console.log(
-        'Updating DynamoDB with params:',
-        JSON.stringify(updateParams)
-      );
 
-      // pass a callback to the update function to log the result of the update
-      const updateResult = await dynamodb.update(updateParams).promise();
-      console.log('Update successful:', updateResult);
+      try {
+        console.log(
+          'Starting DynamoDB update with params:',
+          JSON.stringify(updateParams)
+        );
+        const updateResult = await dynamodb.update(updateParams).promise();
+        console.log('Update successful:', JSON.stringify(updateResult));
+      } catch (error) {
+        console.error(
+          'Failed to update item:',
+          JSON.stringify(updateParams),
+          error
+        );
+        throw error; // Re-throw to be caught by the outer try-catch
+      }
     });
+
+    // Wait for all updates to complete
+    if (updatePromises) {
+      await Promise.all(updatePromises);
+    }
 
     return {
       statusCode: 200,
