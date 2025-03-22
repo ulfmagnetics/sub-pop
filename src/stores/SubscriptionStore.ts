@@ -1,3 +1,7 @@
+// This is a Pinia store that manages the user's subscriptions.
+// It is used to fetch, add, update, and remove subscriptions from the database.
+// It is backed by an AWS DynamoDB table.
+
 import { defineStore } from 'pinia';
 import { Subscription } from '@/models/Subscription';
 import api from '@/util/api';

@@ -1,3 +1,5 @@
+<!-- This component displays the details of a subscription on a card. -->
+
 <template>
   <div class="subscription-card">
     <h3>{{ subscription.serviceName }}</h3>

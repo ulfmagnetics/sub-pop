@@ -1,3 +1,5 @@
+<!-- This component displays a list of the user's active subscriptions. -->
+
 <template>
   <div class="subscription-list active">
     <h2>Active Subscriptions</h2>

@@ -1,3 +1,8 @@
+<!-- This component provides the "Manage Subscriptions" view. It displays a
+list of the user's subscriptions on a set of "cards" that each represent a
+subscription. It also allows the user to add new subscriptions, edit existing
+ones, and delete subscriptions. -->
+
 <template>
   <div id="subscription-manager">
     <header>
