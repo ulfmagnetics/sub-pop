@@ -6,11 +6,20 @@
       <h2>Active Subscriptions</h2>
       <div class="sort-control">
         <label for="sortBy">Sort by:</label>
-        <select id="sortBy" v-model="sortBy">
-          <option value="nextRenewal">Next Renewal Date</option>
-          <option value="cost">Cost</option>
-          <option value="serviceName">Name</option>
-        </select>
+        <div class="sort-wrapper">
+          <select id="sortBy" v-model="sortBy">
+            <option value="nextRenewal">Next Renewal Date</option>
+            <option value="cost">Cost</option>
+            <option value="serviceName">Name</option>
+          </select>
+          <button
+            class="sort-direction-button"
+            @click="sortAscending = !sortAscending"
+            :title="sortAscending ? 'Sort Ascending' : 'Sort Descending'"
+          >
+            <span class="arrow" :class="{ ascending: sortAscending }"> ↓ </span>
+          </button>
+        </div>
       </div>
     </div>
     <div v-if="loading" class="loading-state">
@@ -70,7 +79,8 @@ export default {
   data() {
     return {
       categories: CategoryMap,
-      sortBy: 'serviceName', // default sort
+      sortBy: 'nextRenewal',
+      sortAscending: true,
     };
   },
   computed: {
@@ -78,7 +88,10 @@ export default {
       return useSubscriptionStore();
     },
     subscriptions() {
-      return this.subscriptionStore.sortedSubscriptions(this.sortBy, true);
+      return this.subscriptionStore.sortedSubscriptions(
+        this.sortBy,
+        this.sortAscending
+      );
     },
     activeSubscriptions() {
       return this.subscriptions.filter((sub) => sub.isActive());
@@ -182,6 +195,40 @@ export default {
 
 .sort-control label {
   font-size: 0.9rem;
-  color: #666;
+  color: #000;
+  font-weight: bolder;
+}
+
+.sort-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.sort-direction-button {
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.1rem;
+  color: #000;
+  font-weight: bolder;
+}
+
+.sort-direction-button:hover {
+  background-color: #cfcfcf;
+  color: #fff;
+}
+
+.arrow {
+  display: inline-block;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.arrow.ascending {
+  transform: rotate(180deg);
 }
 </style>
