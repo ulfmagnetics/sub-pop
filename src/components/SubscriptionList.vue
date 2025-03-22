@@ -234,13 +234,14 @@ export default {
 
 .sort-direction-button {
   background: none;
-  border: none;
+  border: 1px solid #ddd;
+  border-radius: 3px;
   padding: 0.25rem 0.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0.1rem;
+  margin-left: 0.25rem;
   color: #000;
   font-weight: bolder;
 }
@@ -252,7 +253,7 @@ export default {
 
 .arrow {
   display: inline-block;
-  font-size: 1.2rem;
+  font-size: 1rem;
   transition: transform 0.2s ease;
 }
 
