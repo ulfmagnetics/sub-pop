@@ -1,4 +1,4 @@
-# sub pop
+# sub pop - a subscription tracker
 
 ## What is this?
 
@@ -12,6 +12,12 @@ Sub Pop is a dumb little subscription tracker with the goal of helping to solve 
 problem. It is very much a work in progress.
 
 It's built with Vue.js. The technical details are below.
+
+## How can I use this?
+
+There's a demo installation hosted on Github Pages at https://ulfmagnetics.github.io/sub-pop.
+Unfortunately I haven't implemented registration yet (see TODO) but if you really want access,
+get in touch and I can create an account for you manually!
 
 ## TODO
 
