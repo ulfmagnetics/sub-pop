@@ -51,6 +51,11 @@ export const useSubscriptionStore = defineStore('subscriptions', {
         });
       };
     },
+    subscriptionsByCategory: (state) => {
+      return (category: string) => {
+        return state.subscriptions.filter(sub => sub.category === category);
+      };
+    },
   },
 
   actions: {

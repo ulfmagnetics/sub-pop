@@ -16,3 +16,17 @@ export const CategoryMap = Object.freeze({
   food: 'Food and Drink',
   other: 'Other',
 });
+
+// Category colors for charts and UI elements
+export const categoryColors = [
+  '#FF6B6B', // Coral Red
+  '#4ECDC4', // Caribbean Green
+  '#FFD166', // Mustard Yellow
+  '#ff0000', // Just Red
+  '#1A936F', // Jungle Green
+  '#3D5A80', // Dark Blue
+  '#F26419', // Pumpkin Orange
+  '#8338EC', // Violet Purple
+  '#06D6A0', // Aquamarine
+  '#EF476F', // Watermelon Pink
+];

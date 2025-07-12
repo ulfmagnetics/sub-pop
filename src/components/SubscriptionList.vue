@@ -22,6 +22,20 @@
         </div>
       </div>
     </div>
+    
+    <div class="category-filters">
+      <div class="category-chips">
+        <button
+          v-for="(categoryName, categoryKey, index) in categories"
+          :key="categoryKey"
+          class="category-chip"
+          :style="{ backgroundColor: getCategoryColor(index) }"
+          @click="handleCategoryClick(categoryName)"
+        >
+          {{ categoryName }}
+        </button>
+      </div>
+    </div>
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
       <p>Loading subscriptions...</p>
@@ -67,7 +81,7 @@
 
 <script>
 import SubscriptionDetails from './SubscriptionDetails.vue';
-import { CategoryMap } from '@/constants';
+import { CategoryMap, categoryColors } from '@/constants';
 import { useSubscriptionStore } from '@/stores/SubscriptionStore';
 import { displayToast } from '@/util/notifications';
 
@@ -125,6 +139,9 @@ export default {
     },
   },
   methods: {
+    getCategoryColor(index) {
+      return categoryColors[index % categoryColors.length];
+    },
     async fetchSubscriptions() {
       try {
         await this.subscriptionStore.fetchSubscriptions();
@@ -149,6 +166,9 @@ export default {
         sortAscending: this.sortAscending,
       };
       localStorage.setItem(SORT_SETTINGS_KEY, JSON.stringify(settings));
+    },
+    handleCategoryClick(categoryName) {
+      alert(`Category selected: ${categoryName}`);
     },
   },
   mounted() {
@@ -259,5 +279,31 @@ export default {
 
 .arrow.ascending {
   transform: rotate(180deg);
+}
+
+.category-filters {
+  margin-bottom: 1rem;
+}
+
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.category-chip {
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.category-chip:hover {
+  opacity: 0.8;
+  border-color: #bbb;
 }
 </style>

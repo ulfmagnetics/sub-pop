@@ -91,21 +91,9 @@ import {
 import { useSubscriptionStore } from '@/stores/SubscriptionStore';
 import { displayToast } from '@/util/notifications';
 import { formatCurrency } from '@/util/formatting';
+import { categoryColors, CategoryMap } from '@/constants';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, LinearScale, PointElement);
-
-const categoryColors = [
-  '#FF6B6B', // Coral Red
-  '#4ECDC4', // Caribbean Green
-  '#FFD166', // Mustard Yellow
-  '#ff0000', // Just Red
-  '#1A936F', // Jungle Green
-  '#3D5A80', // Dark Blue
-  '#F26419', // Pumpkin Orange
-  '#8338EC', // Violet Purple
-  '#06D6A0', // Aquamarine
-  '#EF476F', // Watermelon Pink
-];
 
 export default {
   name: 'DashboardView',
@@ -181,10 +169,14 @@ export default {
         return acc;
       }, {});
 
-      return Object.entries(categoryTotals).map(([name, value]) => ({
-        name,
-        value: parseFloat(value.toFixed(2)),
-      }));
+      // Sort categories according to CategoryMap order
+      const categoryKeys = Object.keys(CategoryMap);
+      return categoryKeys
+        .filter(key => categoryTotals[key] > 0) // Only include categories with data
+        .map(key => ({
+          name: CategoryMap[key],
+          value: parseFloat(categoryTotals[key].toFixed(2)),
+        }));
     },
 
     // Prepare data for pie chart
