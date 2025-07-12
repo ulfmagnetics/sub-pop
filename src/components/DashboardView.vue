@@ -54,22 +54,25 @@
         </div>
       </div>
 
-      <!-- Cost by Category Chart -->
-      <div class="dashboard-section">
-        <h3>Cost Distribution by Category</h3>
-        <div class="chart-container">
-          <PieChart :data="pieChartData" :options="pieChartOptions" />
+      <!-- Charts Side by Side -->
+      <div class="charts-grid">
+        <!-- Cost by Category Chart -->
+        <div class="dashboard-section">
+          <h3>Cost Distribution by Category</h3>
+          <div class="chart-container">
+            <PieChart :data="pieChartData" :options="pieChartOptions" />
+          </div>
         </div>
-      </div>
 
-      <!-- Value vs Cost Chart -->
-      <div class="dashboard-section">
-        <h3>Value vs Cost Analysis</h3>
-        <div class="chart-container">
-          <ScatterPlot
-            :data="scatterChartData"
-            :options="scatterChartOptions"
-          />
+        <!-- Value vs Cost Chart -->
+        <div class="dashboard-section">
+          <h3>Value vs Cost Analysis</h3>
+          <div class="chart-container">
+            <ScatterPlot
+              :data="scatterChartData"
+              :options="scatterChartOptions"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -209,7 +212,7 @@ export default {
         },
         plugins: {
           legend: {
-            position: 'top',
+            position: 'right',
           },
           tooltip: {
             callbacks: {
@@ -225,21 +228,31 @@ export default {
 
     // Prepare data for value vs cost scatter plot
     scatterChartData() {
-      const data = this.subscriptions.map((sub) => ({
-        serviceName: sub.serviceName,
-        x:
-          sub.billingCycle === 'annual'
-            ? parseFloat((sub.cost / 12).toFixed(2))
-            : parseFloat(sub.cost),
-        y: sub.valueRating,
-      }));
+      const categoryKeys = Object.keys(CategoryMap);
+      const data = this.subscriptions.map((sub) => {
+        const categoryIndex = categoryKeys.indexOf(sub.category);
+        const color = categoryColors[categoryIndex % categoryColors.length];
+        
+        return {
+          serviceName: sub.serviceName,
+          category: sub.category,
+          x:
+            sub.billingCycle === 'annual'
+              ? parseFloat((sub.cost / 12).toFixed(2))
+              : parseFloat(sub.cost),
+          y: sub.valueRating,
+          backgroundColor: color,
+          borderColor: color,
+        };
+      });
+      
       return {
         datasets: [
           {
             label: 'Value vs. Cost',
             data: data,
-            backgroundColor: '#42A5F5',
-            borderColor: '#1E88E5',
+            backgroundColor: data.map(point => point.backgroundColor),
+            borderColor: data.map(point => point.borderColor),
             borderWidth: 1,
           },
         ],
@@ -271,8 +284,9 @@ export default {
             // display the service name in the tooltip
             callbacks: {
               label: (tooltipItem) => {
-                const { x, y, serviceName } = tooltipItem.raw;
-                return `${serviceName}: Cost: $${x.toFixed(2)}, Value: ${y}`;
+                const { x, y, serviceName, category } = tooltipItem.raw;
+                const categoryName = CategoryMap[category];
+                return `${serviceName} (${categoryName}): Cost: $${x.toFixed(2)}, Value: ${y}`;
               },
             },
           },
@@ -389,10 +403,23 @@ export default {
   color: #2c3e50;
 }
 
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
 .chart-container {
   display: flex;
   justify-content: center;
   margin: 1rem 0;
   height: 300px;
+}
+
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
