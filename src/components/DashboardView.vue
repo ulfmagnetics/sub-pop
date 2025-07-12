@@ -280,6 +280,9 @@ export default {
           },
         },
         plugins: {
+          legend: {
+            display: false,
+          },
           tooltip: {
             // display the service name in the tooltip
             callbacks: {
