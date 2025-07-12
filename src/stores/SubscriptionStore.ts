@@ -13,6 +13,7 @@ interface SubscriptionState {
   subscriptions: Subscription[];
   loading: boolean;
   error: string | null;
+  selectedCategory: string | null;
 }
 
 export const useSubscriptionStore = defineStore('subscriptions', {
@@ -20,6 +21,7 @@ export const useSubscriptionStore = defineStore('subscriptions', {
     subscriptions: [],
     loading: false,
     error: null,
+    selectedCategory: null,
   }),
 
   getters: {
@@ -138,6 +140,10 @@ export const useSubscriptionStore = defineStore('subscriptions', {
       return this.subscriptions.find(
         (s) => s.subscriptionId === subscriptionId
       );
+    },
+
+    setCategoryFilter(category: string | null) {
+      this.selectedCategory = category;
     },
   },
 });

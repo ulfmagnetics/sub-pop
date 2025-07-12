@@ -29,6 +29,10 @@
           v-for="(categoryName, categoryKey, index) in categories"
           :key="categoryKey"
           class="category-chip"
+          :class="{ 
+            selected: selectedCategory === categoryKey,
+            'non-selected': selectedCategory && selectedCategory !== categoryKey
+          }"
           :style="{ backgroundColor: getCategoryColor(index) }"
           @click="handleCategoryClick(categoryName)"
         >
@@ -120,13 +124,20 @@ export default {
       );
     },
     activeSubscriptions() {
-      return this.subscriptions.filter((sub) => sub.isActive());
+      const active = this.subscriptions.filter((sub) => sub.isActive());
+      if (this.selectedCategory) {
+        return active.filter((sub) => sub.category === this.selectedCategory);
+      }
+      return active;
     },
     inactiveSubscriptions() {
       return this.subscriptions.filter((sub) => !sub.isActive());
     },
     loading() {
       return this.subscriptionStore.loading;
+    },
+    selectedCategory() {
+      return this.subscriptionStore.selectedCategory;
     },
   },
   watch: {
@@ -168,7 +179,17 @@ export default {
       localStorage.setItem(SORT_SETTINGS_KEY, JSON.stringify(settings));
     },
     handleCategoryClick(categoryName) {
-      alert(`Category selected: ${categoryName}`);
+      // Find the category key from the name
+      const categoryKey = Object.keys(this.categories).find(
+        key => this.categories[key] === categoryName
+      );
+      
+      // Toggle filter: if already selected, clear filter; otherwise set filter
+      if (this.selectedCategory === categoryKey) {
+        this.subscriptionStore.setCategoryFilter(null);
+      } else {
+        this.subscriptionStore.setCategoryFilter(categoryKey);
+      }
     },
   },
   mounted() {
@@ -305,5 +326,17 @@ export default {
 .category-chip:hover {
   opacity: 0.8;
   border-color: #bbb;
+}
+
+.category-chip.selected {
+  border: 3px solid #333;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+.category-chip.non-selected {
+  opacity: 0.3;
+  filter: grayscale(50%);
+  transform: scale(0.95);
 }
 </style>

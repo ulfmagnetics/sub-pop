@@ -196,6 +196,17 @@ export default {
     pieChartOptions() {
       return {
         responsive: true,
+        onClick: (_, elements) => {
+          if (elements.length > 0) {
+            const element = elements[0];
+            const dataIndex = element.index;
+            const categoryData = this.costByCategory[dataIndex];
+            this.handlePieSliceClick(categoryData.name);
+          }
+        },
+        onHover: (evt, elements) => {
+          evt.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+        },
         plugins: {
           legend: {
             position: 'top',
@@ -282,6 +293,18 @@ export default {
         displayToast('Failed to fetch subscriptions. Please try again later.');
       } finally {
         this.loading = false;
+      }
+    },
+    handlePieSliceClick(categoryName) {
+      // Find the category key from the display name
+      const categoryKey = Object.keys(CategoryMap).find(
+        key => CategoryMap[key] === categoryName
+      );
+      
+      if (categoryKey) {
+        // Set the category filter in the store and navigate to subscriptions
+        this.subscriptionStore.setCategoryFilter(categoryKey);
+        this.$router.push('/subscriptions');
       }
     },
   },
