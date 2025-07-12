@@ -97,6 +97,7 @@ const DEFAULT_SORT_SETTINGS = {
 
 export default {
   name: 'SubscriptionList',
+  emits: ['edit'],
   components: {
     SubscriptionDetails,
   },
