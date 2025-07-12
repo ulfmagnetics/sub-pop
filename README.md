@@ -25,30 +25,28 @@ get in touch and I can create an account for you manually!
   - Add a registration page
   - Add an account section with support for updating passwords, forgot password, etc.
 
-## Project setup
+
+## Configuring your development environment 
+
+### Set required environment variables
+
+Create a file called `.env.local` and provide values for the following three variables
+based on your AWS configuration:
+
+```
+VUE_APP_COGNITO_USER_POOL_ID=your_cognito_user_pool_id
+VUE_APP_COGNITO_CLIENT_ID=your_cognito_client_id
+VUE_APP_API_URL=your_api_gateway_invoke_url
+```
+
+### Install dependencies
 
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Run the development server
 
 ```
 npm run serve
 ```
-
-### Compiles and minifies for production
-
-```
-npm run build
-```
-
-### Lints and fixes files
-
-```
-npm run lint
-```
-
-### Customize configuration
-
-See [Configuration Reference](https://cli.vuejs.org/config/).
