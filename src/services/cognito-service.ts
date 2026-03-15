@@ -50,6 +50,54 @@ export const signOut = (): void => {
   }
 };
 
+export const forgotPassword = (username: string): Promise<void> => {
+  const cognitoUser = new CognitoUser({ Username: username, Pool: userPool });
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.forgotPassword({
+      onSuccess: () => resolve(),
+      onFailure: (err) => reject(err),
+    });
+  });
+};
+
+export const confirmForgotPassword = (
+  username: string,
+  code: string,
+  newPassword: string
+): Promise<void> => {
+  const cognitoUser = new CognitoUser({ Username: username, Pool: userPool });
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.confirmPassword(code, newPassword, {
+      onSuccess: () => resolve(),
+      onFailure: (err) => reject(err),
+    });
+  });
+};
+
+export const changePassword = (
+  currentPassword: string,
+  newPassword: string
+): Promise<void> => {
+  const cognitoUser = getCurrentUser();
+  if (!cognitoUser) {
+    return Promise.reject(new Error('No current user'));
+  }
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.getSession((err: Error, session: null | CognitoUserSession) => {
+      if (err || !session) {
+        return reject(err || new Error('Session is null'));
+      }
+      cognitoUser.changePassword(currentPassword, newPassword, (err, result) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+  });
+};
+
 export const refreshSession = (): Promise<CognitoUserSession> => {
   const cognitoUser = getCurrentUser();
   if (!cognitoUser) {

@@ -12,6 +12,9 @@
       <div class="button-container">
         <button type="submit" class="submit-button">Log In</button>
       </div>
+      <div class="forgot-password-container">
+        <a href="#" class="forgot-password-link" @click.prevent="$emit('forgot-password')">Forgot password?</a>
+      </div>
     </form>
   </div>
 </template>
@@ -104,5 +107,20 @@ export default defineComponent({
 
 .submit-button:hover {
   background-color: #0056b3;
+}
+
+.forgot-password-container {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.forgot-password-link {
+  color: #007bff;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
 }
 </style>

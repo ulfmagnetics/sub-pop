@@ -24,7 +24,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import { CognitoUser } from 'amazon-cognito-identity-js';
-import { getCurrentUser } from '@/services/cognito-service';
+import { changePassword } from '@/services/cognito-service';
 import { useRouter } from 'vue-router';
 import { displayToast } from '@/util/notifications';
 
@@ -67,24 +67,14 @@ export default defineComponent({
         return;
       }
 
-      // otherwise, check the cognito service for a logged-in user
-      const currentUser = getCurrentUser();
-      if (currentUser) {
-        // Handle the regular update password flow
-        // FIXME: this returns an error: "User is not authenticated"
-        currentUser.changePassword(
-          this.currentPassword,
-          this.newPassword,
-          (err, result) => {
-            if (err) {
-              console.log('Error updating password:', err);
-            } else {
-              console.log('Password updated successfully:', result);
-            }
-          }
-        );
-      } else {
-        displayToast('Sorry, you must be logged in to update your password.');
+      // otherwise, use the cognito service (hydrates session before changing password)
+      try {
+        await changePassword(this.currentPassword, this.newPassword);
+        displayToast('Password updated successfully');
+        this.router.push({ name: 'Dashboard' });
+      } catch (err) {
+        displayToast('Sorry, there was an error updating your password.');
+        console.error('Password update error:', err);
       }
     },
   },
